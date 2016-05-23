@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AddMatrixDialog</class>
+ <widget class="QDialog" name="AddMatrixDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QListWidget" name="listWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>91</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>自定义</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>单位矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>零矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>1矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>旋转矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>投影矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>希尔伯特矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>随机矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>对角矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>正交矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>正定矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>酉矩阵</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Hermite矩阵</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QStackedWidget" name="stackedWidget">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>30</y>
+     <width>251</width>
+     <height>241</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="page">
+    <widget class="QTextEdit" name="textEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>151</width>
+       <height>141</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_2"/>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
