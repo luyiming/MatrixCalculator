@@ -8,18 +8,20 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = MatrixCaculator-GUI
+TARGET = MatrixCalculator-GUI
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
         MainWindow.cpp \
     AddMatrixDialog.cpp \
-    Matrix.cpp
+    Matrix.cpp \
+    Calculator.cpp
 
 HEADERS  += MainWindow.h \
     AddMatrixDialog.h \
-    Matrix.h
+    Matrix.h \
+    Calculator.h
 
 FORMS    += MainWindow.ui \
     AddMatrixDialog.ui
