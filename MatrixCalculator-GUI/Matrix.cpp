@@ -9,19 +9,19 @@ Matrix::Matrix()
 
 Matrix::Matrix(int r, int c)
 {
-    this->row = r;
-    this->coloum = c;
-    this->mat = new double[r * c];
-    memset(mat, 0, sizeof(double) * r * c);
+    if(r > 0 && c > 0)
+    {
+        this->row = r;
+        this->coloum = c;
+        this->mat = new double[r * c];
+        memset(mat, 0, sizeof(double) * r * c);
+    }
 }
 
 Matrix::~Matrix()
 {
     if(this->mat != NULL)
-    {
         delete []mat;
-        mat = NULL;
-    }
 }
 
 Matrix::Matrix(const Matrix& rhs)
@@ -32,6 +32,19 @@ Matrix::Matrix(const Matrix& rhs)
     memcpy(this->mat, rhs.mat, sizeof(double) * row * coloum);
 }
 
+
+void Matrix::resize(int r, int c)
+{
+    if(r <= 0 || c <= 0)
+        return;
+    if(this->mat != NULL)
+        delete []mat;
+    this->mat = new double[r * c];
+    memset(mat, 0, sizeof(double) * r * c);
+    this->row = r;
+    this->coloum = c;
+}
+
 Matrix& Matrix::operator = (const Matrix& rhs)
 {
     if(this == &rhs)
@@ -39,10 +52,7 @@ Matrix& Matrix::operator = (const Matrix& rhs)
     this->row = rhs.row;
     this->coloum = rhs.coloum;
     if(this->mat != NULL)
-    {
         delete []mat;
-        mat = NULL;
-    }
     this->mat = new double[row * coloum];
     memcpy(this->mat, rhs.mat, sizeof(double) * row * coloum);
     return *this;
@@ -86,10 +96,11 @@ const Matrix operator - (const Matrix& lhs, const Matrix& rhs)
 
 const Matrix operator / (const Matrix& lhs, const Matrix& rhs)
 {
-
+    Matrix res = lhs * rhs.inverse();
+    return res;
 }
 
-const Matrix operator * (const int lhs, const Matrix& rhs)
+const Matrix operator * (const double lhs, const Matrix& rhs)
 {
     Matrix res(rhs.row, rhs.coloum);
     for(int r = 0; r < rhs.row; ++r)
@@ -102,7 +113,7 @@ const Matrix operator * (const int lhs, const Matrix& rhs)
     return res;
 }
 
-const Matrix operator * (const Matrix& lhs, const int rhs)
+const Matrix operator * (const Matrix& lhs, const double rhs)
 {
     Matrix res(lhs.row, lhs.coloum);
     for(int r = 0; r < lhs.row; ++r)
@@ -155,7 +166,7 @@ const double* Matrix::operator [] (int index) const
     return &mat[index * coloum];
 }
 
-const Matrix Matrix::transpose()
+const Matrix Matrix::transpose() const
 {
     Matrix res(row, coloum);
     for(int r = 0; r < row; ++r)
@@ -168,8 +179,89 @@ const Matrix Matrix::transpose()
     return res;
 }
 
+//求行列式的值：
+double Matrix::det() const
+{
+    if(row != coloum)
+    {
+        qDebug() << "matrix should be n*n";
+        return 0.0;
+    }
+    int n = row;
+    if(n == 2)
+        return (*this)[0][0] * (*this)[1][1] - (*this)[0][1] * (*this)[1][0];
+    if(n < 2)
+        return 0.0;
+    double res = 0.0;
+    for(int i = 0; i < n; i++)
+    {
+        Matrix temp(n - 1, n - 1);
+        for(int r = 1; r < n; ++r)
+        {
+            for(int c = 0; c < i; ++c)
+                temp[r - 1][c] = (*this)[r][c];
+            for(int c = i + 1; c < n; ++c)
+                temp[r - 1][c - 1] = (*this)[r][c];
+        }
+        if(i % 2 == 0)
+            res = res + (*this)[0][i] * temp.det();
+        else
+            res = res - (*this)[0][i] * temp.det();
+    }
+    return res;
+}
+
+//求逆矩阵： 伴随矩阵行列式的值除以行列式的值
+const Matrix Matrix::inverse() const
+{
+    if(this->row != this->coloum)
+    {
+        qDebug() << "inverse should be n * n";
+        return Matrix();
+    }
+    int n = this->row;
+    Matrix res(n, n);
+    double resultSum = this->det();
+    if(resultSum == 0)
+    {
+        qDebug() << "no inverse";
+        return Matrix();
+    }
+    for(int i = 0; i < n; i++)
+    {
+        for(int j = 0; j < n; ++j)
+        {
+            Matrix temp(n - 1, n - 1);
+            for(int r = 0; r < i; ++r)
+            {
+                for(int c = 0; c < j; ++c)
+                    temp[r][c] = (*this)[r][c];
+                for(int c = j + 1; c < n; ++c)
+                    temp[r][c - 1] = (*this)[r][c];
+            }
+            for(int r = i + 1; r < n; ++r)
+            {
+                for(int c = 0; c < j; ++c)
+                    temp[r - 1][c] = (*this)[r][c];
+                for(int c = j + 1; c < n; ++c)
+                    temp[r - 1][c - 1] = (*this)[r][c];
+            }
+            if((i + j) % 2 == 0)
+                res[j][i] = temp.det() / resultSum;
+            else
+                res[j][i] = -(temp.det() / resultSum);
+        }
+    }
+    return res;
+}
+
 void Matrix::print()
 {
+    if(this->mat == NULL)
+    {
+        qDebug() << "empty matrix";
+        return;
+    }
     qDebug() << "matrix row :" << this->row;
     qDebug() << "matrix coloum :" << this->coloum;
     for(int r = 0; r < this->row; ++r)
@@ -183,3 +275,5 @@ void Matrix::print()
         qDebug() << str;
     }
 }
+
+

@@ -3,6 +3,7 @@
 
 #include "Matrix.h"
 #include <QMap>
+#include <QStack>
 
 enum {
   Num = 128, Id, Add, Sub, Mul, Div, Inv,/*inverse*/ Brak
@@ -13,23 +14,21 @@ class Calculator
 public:
     Calculator();
     ~Calculator();
-    Calculator(QMap<QString, Matrix> &matrices_);
-    Matrix calculate(char* exp);
+    Calculator(QMap<QString, Matrix> &mats);
+    Matrix calculate(const char* exp);
 
 private:
-    void next();
     QMap<QString, Matrix> matrices;
     char* src = NULL;
     int token;
-    int token_val;                // value of current token (mainly for number)
-    Matrix mat;
-
+    QStack<int> symbol_stack;
+    QStack<int> value_stack;
+    QStack<Matrix> mat_val;
+    QStack<double> num_val;
     void match(int tk);
-    Matrix factor();
-    Matrix term_tail(Matrix lvalue);
-    Matrix term();
-    Matrix expr_tail(Matrix lvalue);
-    Matrix expr();
+
+    int get_next_token();
+    void calc(int token);
 };
 
 #endif // CALCULATOR_H

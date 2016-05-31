@@ -4,5 +4,9 @@
         <file>src/delete.png</file>
         <file>src/in.png</file>
         <file>src/modify.png</file>
+        <file>src/arrow-left.png</file>
+        <file>src/arrow-right.png</file>
+        <file alias="arrow-left">src/arrow_left_44px_548410_easyicon.net.png</file>
+        <file alias="arrow-right">src/arrow_right_44px_548411_easyicon.net.png</file>
     </qresource>
 </RCC>

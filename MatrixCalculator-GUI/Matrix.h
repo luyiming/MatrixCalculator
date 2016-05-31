@@ -2,6 +2,7 @@
 #define MATRIX_H
 
 #include <cstdlib>
+#include <QString>
 
 class Matrix
 {
@@ -15,18 +16,23 @@ public:
     Matrix(int r, int c);
     ~Matrix();
     Matrix(const Matrix& rhs);
+    void resize(int r, int c);
+
     Matrix& operator = (const Matrix& rhs);
     friend const Matrix operator + (const Matrix& lhs, const Matrix& rhs);
     friend const Matrix operator - (const Matrix& lhs, const Matrix& rhs);
     friend const Matrix operator / (const Matrix& lhs, const Matrix& rhs);
-    friend const Matrix operator * (const int lhs, const Matrix& rhs);
-    friend const Matrix operator * (const Matrix& lhs, const int rhs);
+    friend const Matrix operator * (const double lhs, const Matrix& rhs);
+    friend const Matrix operator * (const Matrix& lhs, const double rhs);
     friend const Matrix operator * (const Matrix& lhs, const Matrix& rhs);
-
+    const Matrix inverse() const;
+    double det() const;
+    const Matrix transpose() const;
     double* operator [] (int index);
     const double* operator [] (int index) const;
     void print();
-    void zero();
 };
+
+
 
 #endif // MATRIX_H

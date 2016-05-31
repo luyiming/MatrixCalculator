@@ -2,3 +2,6 @@
 build-*
 design
 *.autosave
+*.pptx
+*.odt
+*.odp
