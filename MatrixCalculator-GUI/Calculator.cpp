@@ -301,7 +301,9 @@ Matrix Calculator::calculate(const char* exp)
     while(token = get_next_token())
     {
         if(token == -1)
+        {
             return Matrix();
+        }
         if(token == Id)
             value_stack.push(Id);
         else if(token == Num)

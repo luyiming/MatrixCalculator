@@ -1,4 +1,5 @@
 #include "Matrix.h"
+#include "Calculator.h"
 #include "MatrixTableWidget.h"
 #include "ui_MatrixTableWidget.h"
 #include "AddMatrixDialog.h"
@@ -8,6 +9,7 @@
 
 #include <QIcon>
 #include <QStringList>
+#include <QMessageBox>
 
 
 
@@ -46,17 +48,15 @@ MatrixTableWidget::~MatrixTableWidget()
 void MatrixTableWidget::on_addButton_clicked()
 {
     AddMatrixDialog* addDialog = new AddMatrixDialog(this, this->matrices);
-    connect(addDialog, &AddMatrixDialog::matrix_updated, this, &MatrixTableWidget::slot_update_matrix);
+    connect(addDialog, &AddMatrixDialog::matrix_added, this, &MatrixTableWidget::slot_update_matrix);
     addDialog->show();
 }
 
-void MatrixTableWidget::slot_update_matrix(Matrix mat, QString name, QString info, bool isOverwritten)
+void MatrixTableWidget::slot_update_matrix(Matrix mat, QString name, QString info)
 {
-    matrices[name] = mat;
-     qDebug() << 1;
-    if(isOverwritten)
+    if(matrices.contains(name))
     {
-         qDebug() << 2;
+        matrices.insert(name, mat);
         for(int i = 0; i < ui->matrixTable->rowCount(); ++i)
         {
             if(ui->matrixTable->item(i, 0)->text() == name)
@@ -65,7 +65,7 @@ void MatrixTableWidget::slot_update_matrix(Matrix mat, QString name, QString inf
                 ui->matrixTable->insertRow(i);
                 ui->matrixTable->setItem(i, 0 , new QTableWidgetItem(name));
                 ui->matrixTable->setItem(i, 1 , new QTableWidgetItem(QString::number(mat.row)));
-                ui->matrixTable->setItem(i, 2 , new QTableWidgetItem(QString::number(mat.coloum)));
+                ui->matrixTable->setItem(i, 2 , new QTableWidgetItem(QString::number(mat.column)));
                 ui->matrixTable->setItem(i, 3 , new QTableWidgetItem(QString(info)));
                 break;
             }
@@ -73,12 +73,110 @@ void MatrixTableWidget::slot_update_matrix(Matrix mat, QString name, QString inf
     }
     else
     {
-        qDebug() << 123;
+        matrices.insert(name, mat);
         int curRow = ui->matrixTable->rowCount();
         ui->matrixTable->insertRow(curRow);
         ui->matrixTable->setItem(curRow, 0 , new QTableWidgetItem(name));
         ui->matrixTable->setItem(curRow, 1 , new QTableWidgetItem(QString::number(mat.row)));
-        ui->matrixTable->setItem(curRow, 2 , new QTableWidgetItem(QString::number(mat.coloum)));
+        ui->matrixTable->setItem(curRow, 2 , new QTableWidgetItem(QString::number(mat.column)));
         ui->matrixTable->setItem(curRow, 3 , new QTableWidgetItem(QString(info)));
     }
+}
+
+void MatrixTableWidget::on_deleteButton_clicked()
+{
+    int row = ui->matrixTable->currentRow();
+    if(row == -1)
+    {
+        QMessageBox::warning(this, QString("失败"), QString("没有指定矩阵"));
+        return;
+    }
+    QString name = ui->matrixTable->item(row, 0)->text();
+    if(QMessageBox::No == QMessageBox::question(this, QString("删除确认"), QString("确认删除矩阵 ") + name + QString(" 吗?")))
+        return;
+    if(!matrices.contains(name))
+    {
+        qDebug() << "delete error, no matrix";
+        return;
+    }
+    matrices.remove(name);
+    ui->matrixTable->removeRow(row);
+}
+
+void MatrixTableWidget::on_modifyButton_clicked()
+{
+    int row = ui->matrixTable->currentRow();
+    if(row == -1)
+    {
+        QMessageBox::warning(this, QString("失败"), QString("没有指定矩阵"));
+        return;
+    }
+    QString name = ui->matrixTable->item(row, 0)->text();
+    Matrix mat = matrices[name];
+    QString info = ui->matrixTable->item(row, 3)->text();
+    AddMatrixDialog* addDialog = new AddMatrixDialog(this, this->matrices);
+    addDialog->setModifyMode(mat, name, info);
+    connect(addDialog, &AddMatrixDialog::matrix_changed, this, &MatrixTableWidget::slot_change_matrix);
+    addDialog->show();
+}
+
+void MatrixTableWidget::slot_change_matrix(QString prevName, Matrix mat, QString name, QString info)
+{
+    for(int i = 0; i < ui->matrixTable->rowCount(); ++i)
+    {
+        if(ui->matrixTable->item(i, 0)->text() == prevName)
+        {
+            ui->matrixTable->removeRow(i);
+            ui->matrixTable->insertRow(i);
+            ui->matrixTable->setItem(i, 0 , new QTableWidgetItem(name));
+            ui->matrixTable->setItem(i, 1 , new QTableWidgetItem(QString::number(mat.row)));
+            ui->matrixTable->setItem(i, 2 , new QTableWidgetItem(QString::number(mat.column)));
+            ui->matrixTable->setItem(i, 3 , new QTableWidgetItem(QString(info)));
+            break;
+        }
+    }
+    matrices.remove(prevName);
+    matrices.insert(name, mat);
+}
+
+void MatrixTableWidget::on_matrixTable_cellClicked(int row, int column)
+{
+    Q_UNUSED(column)
+    QString name = ui->matrixTable->item(row, 0)->text();
+    if(!matrices.contains(name))
+    {
+        qDebug() << "connot find matrix";
+        return;
+    }
+    Matrix mat = matrices[name];
+    emit matrix_changed(mat);
+}
+
+void MatrixTableWidget::slot_calculate(QString expression)
+{
+    char *exp = new char[expression.size() + 1];
+    strcpy(exp, expression.toStdString().data());
+    qDebug() << exp;
+    Calculator calc(matrices);
+    Matrix res = calc.calculate(exp);
+    if(res.isEmpty())
+    {
+        qDebug() << "未定义矩阵";
+        emit info_updated("未定义矩阵");
+        return;
+    }
+    else
+        emit output_updated(res);
+}
+
+void MatrixTableWidget::on_matrixTable_cellDoubleClicked(int row, int column)
+{
+    Q_UNUSED(column)
+    QString name = ui->matrixTable->item(row, 0)->text();
+    Matrix mat = matrices[name];
+    QString info = ui->matrixTable->item(row, 3)->text();
+    AddMatrixDialog* addDialog = new AddMatrixDialog(this, this->matrices);
+    addDialog->setModifyMode(mat, name, info);
+    connect(addDialog, &AddMatrixDialog::matrix_changed, this, &MatrixTableWidget::slot_change_matrix);
+    addDialog->show();
 }

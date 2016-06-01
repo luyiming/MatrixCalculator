@@ -108,7 +108,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="coloumLine">
+          <widget class="QLineEdit" name="columnLine">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -132,7 +132,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTableWidget" name="matrixTable"/>
+        <widget class="QTableWidget" name="displayTable"/>
        </item>
       </layout>
      </item>
@@ -175,7 +175,7 @@
        <item>
         <widget class="QPushButton" name="detButton">
          <property name="text">
-          <string>det</string>
+          <string>行列式</string>
          </property>
         </widget>
        </item>
@@ -194,7 +194,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_10">
+        <widget class="QPushButton" name="applyButton">
          <property name="text">
           <string>&lt;--应用</string>
          </property>
@@ -239,11 +239,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTextEdit" name="outputTable">
-         <property name="styleSheet">
-          <string notr="true">font: 16pt &quot;Ubuntu&quot;;</string>
-         </property>
-        </widget>
+        <widget class="QTableWidget" name="outputTable"/>
        </item>
       </layout>
      </item>

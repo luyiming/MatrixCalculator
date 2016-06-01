@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>543</width>
+    <width>568</width>
     <height>407</height>
    </rect>
   </property>
@@ -218,7 +218,7 @@
      <item>
       <widget class="QStackedWidget" name="stack">
        <property name="currentIndex">
-        <number>2</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -240,7 +240,7 @@
        <widget class="QWidget" name="page_3">
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_12">
            <property name="text">
             <string>单位矩阵</string>
            </property>
@@ -367,7 +367,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit"/>
+            <widget class="QLineEdit" name="angleLine"/>
            </item>
            <item>
             <widget class="QLabel" name="label_2">
@@ -377,7 +377,51 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_2"/>
+            <widget class="QLineEdit" name="radianLine"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>旋转轴</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="rotationBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>35</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <item>
+              <property name="text">
+               <string>x</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>y</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>z</string>
+              </property>
+             </item>
+            </widget>
            </item>
            <item>
             <widget class="QLabel" name="label_4">
@@ -388,6 +432,11 @@
            </item>
            <item>
             <widget class="QComboBox" name="matrixOrder_3">
+             <item>
+              <property name="text">
+               <string>2</string>
+              </property>
+             </item>
              <item>
               <property name="text">
                <string>3</string>

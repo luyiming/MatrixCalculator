@@ -16,6 +16,7 @@ class AddMatrixDialog : public QDialog
 
 public:
     explicit AddMatrixDialog(QWidget *parent = 0, QMap<QString, Matrix> mats = QMap<QString, Matrix>());
+    void setModifyMode(Matrix mat, QString name, QString info);
     ~AddMatrixDialog();
 
 private slots:
@@ -29,13 +30,25 @@ private slots:
 
     void on_matrixList_currentRowChanged(int currentRow);
 
+    void on_matrixOrder_3_currentIndexChanged(const QString &arg1);
+
+    void on_angleLine_textChanged(const QString &arg1);
+
+    void on_radianLine_textChanged(const QString &arg1);
+
+    void on_angleLine_textEdited(const QString &arg1);
+
+    void on_radianLine_textEdited(const QString &arg1);
+
 signals:
-    void matrix_updated(Matrix mat, QString name, QString info, bool isOverwritten);
+    void matrix_added(Matrix mat, QString name, QString info);
+    void matrix_changed(QString prevName, Matrix mat, QString name, QString info);
 
 private:
     Ui::AddMatrixDialog *ui;
     QMap<QString, Matrix> matrices;
-    QStringList nameList;
+    bool modifyMode = false;
+    QString prevName;
 };
 
 #endif // ADDMATRIXDIALOG_H

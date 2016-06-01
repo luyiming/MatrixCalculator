@@ -12,7 +12,7 @@ Matrix::Matrix(int r, int c)
     if(r > 0 && c > 0)
     {
         this->row = r;
-        this->coloum = c;
+        this->column = c;
         this->mat = new double[r * c];
         memset(mat, 0, sizeof(double) * r * c);
     }
@@ -27,9 +27,9 @@ Matrix::~Matrix()
 Matrix::Matrix(const Matrix& rhs)
 {
     this->row = rhs.row;
-    this->coloum = rhs.coloum;
-    this->mat = new double[row * coloum];
-    memcpy(this->mat, rhs.mat, sizeof(double) * row * coloum);
+    this->column = rhs.column;
+    this->mat = new double[row * column];
+    memcpy(this->mat, rhs.mat, sizeof(double) * row * column);
 }
 
 
@@ -42,7 +42,7 @@ void Matrix::resize(int r, int c)
     this->mat = new double[r * c];
     memset(mat, 0, sizeof(double) * r * c);
     this->row = r;
-    this->coloum = c;
+    this->column = c;
 }
 
 Matrix& Matrix::operator = (const Matrix& rhs)
@@ -50,25 +50,25 @@ Matrix& Matrix::operator = (const Matrix& rhs)
     if(this == &rhs)
         return *this;
     this->row = rhs.row;
-    this->coloum = rhs.coloum;
+    this->column = rhs.column;
     if(this->mat != NULL)
         delete []mat;
-    this->mat = new double[row * coloum];
-    memcpy(this->mat, rhs.mat, sizeof(double) * row * coloum);
+    this->mat = new double[row * column];
+    memcpy(this->mat, rhs.mat, sizeof(double) * row * column);
     return *this;
 }
 
 const Matrix operator + (const Matrix& lhs, const Matrix& rhs)
 {
-    Matrix res(lhs.row, lhs.coloum);
-    if(lhs.row != rhs.row || lhs.coloum != rhs.coloum)
+    Matrix res(lhs.row, lhs.column);
+    if(lhs.row != rhs.row || lhs.column != rhs.column)
     {
         qDebug() << "matrix add not match";
         return res;
     }
     for(int r = 0; r < lhs.row; ++r)
     {
-        for(int c = 0; c < lhs.coloum; ++c)
+        for(int c = 0; c < lhs.column; ++c)
         {
             res[r][c] = lhs[r][c] + rhs[r][c];
         }
@@ -78,15 +78,15 @@ const Matrix operator + (const Matrix& lhs, const Matrix& rhs)
 
 const Matrix operator - (const Matrix& lhs, const Matrix& rhs)
 {
-    Matrix res(lhs.row, lhs.coloum);
-    if(lhs.row != rhs.row || lhs.coloum != rhs.coloum)
+    Matrix res(lhs.row, lhs.column);
+    if(lhs.row != rhs.row || lhs.column != rhs.column)
     {
         qDebug() << "matrix sub not match";
         return res;
     }
     for(int r = 0; r < lhs.row; ++r)
     {
-        for(int c = 0; c < lhs.coloum; ++c)
+        for(int c = 0; c < lhs.column; ++c)
         {
             res[r][c] = lhs[r][c] - rhs[r][c];
         }
@@ -102,10 +102,10 @@ const Matrix operator / (const Matrix& lhs, const Matrix& rhs)
 
 const Matrix operator * (const double lhs, const Matrix& rhs)
 {
-    Matrix res(rhs.row, rhs.coloum);
+    Matrix res(rhs.row, rhs.column);
     for(int r = 0; r < rhs.row; ++r)
     {
-        for(int c = 0; c < rhs.coloum; ++c)
+        for(int c = 0; c < rhs.column; ++c)
         {
             res[r][c] = lhs * rhs[r][c];
         }
@@ -115,10 +115,10 @@ const Matrix operator * (const double lhs, const Matrix& rhs)
 
 const Matrix operator * (const Matrix& lhs, const double rhs)
 {
-    Matrix res(lhs.row, lhs.coloum);
+    Matrix res(lhs.row, lhs.column);
     for(int r = 0; r < lhs.row; ++r)
     {
-        for(int c = 0; c < lhs.coloum; ++c)
+        for(int c = 0; c < lhs.column; ++c)
         {
             res[r][c] = lhs[r][c] * rhs;
         }
@@ -128,18 +128,18 @@ const Matrix operator * (const Matrix& lhs, const double rhs)
 
 const Matrix operator * (const Matrix& lhs, const Matrix& rhs)
 {
-    Matrix res(lhs.row, rhs.coloum);
-    if(lhs.coloum != rhs.row)
+    Matrix res(lhs.row, rhs.column);
+    if(lhs.column != rhs.row)
     {
         qDebug() << "matrix multiply not match";
         return res;
     }
     for(int r = 0; r < res.row; ++r)
     {
-        for(int c = 0; c < res.coloum; ++c)
+        for(int c = 0; c < res.column; ++c)
         {
             res[r][c] = 0.0;
-            for(int k = 0; k < lhs.coloum; ++k)
+            for(int k = 0; k < lhs.column; ++k)
                 res[r][c] += (lhs[r][k] * rhs[k][c]);
         }
     }
@@ -153,7 +153,7 @@ double* Matrix::operator [] (int index)
         qDebug() << "matrix has no value, index out of range";
         return NULL;
     }
-    return &mat[index * coloum];
+    return &mat[index * column];
 }
 
 const double* Matrix::operator [] (int index) const
@@ -163,15 +163,15 @@ const double* Matrix::operator [] (int index) const
         qDebug() << "matrix has no value, index out of range";
         return NULL;
     }
-    return &mat[index * coloum];
+    return &mat[index * column];
 }
 
 const Matrix Matrix::transpose() const
 {
-    Matrix res(row, coloum);
+    Matrix res(row, column);
     for(int r = 0; r < row; ++r)
     {
-        for(int c = 0; c < coloum; ++c)
+        for(int c = 0; c < column; ++c)
         {
             res[c][r] = (*this)[r][c];
         }
@@ -182,7 +182,7 @@ const Matrix Matrix::transpose() const
 //求行列式的值：
 double Matrix::det() const
 {
-    if(row != coloum)
+    if(row != column)
     {
         qDebug() << "matrix should be n*n";
         return 0.0;
@@ -214,7 +214,7 @@ double Matrix::det() const
 //求逆矩阵： 伴随矩阵行列式的值除以行列式的值
 const Matrix Matrix::inverse() const
 {
-    if(this->row != this->coloum)
+    if(this->row != this->column)
     {
         qDebug() << "inverse should be n * n";
         return Matrix();
@@ -263,17 +263,24 @@ void Matrix::print()
         return;
     }
     qDebug() << "matrix row :" << this->row;
-    qDebug() << "matrix coloum :" << this->coloum;
+    qDebug() << "matrix column :" << this->column;
     for(int r = 0; r < this->row; ++r)
     {
         QString str;
-        for(int c = 0; c < this->coloum; ++c)
+        for(int c = 0; c < this->column; ++c)
         {
-            str += QString::number(this->mat[r * coloum + c]);
+            str += QString::number(this->mat[r * column + c]);
             str += "  ";
         }
         qDebug() << str;
     }
 }
 
+bool Matrix::isEmpty() const
+{
+    if(mat == NULL)
+        return true;
+    else
+        return false;
+}
 

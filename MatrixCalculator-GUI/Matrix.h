@@ -10,7 +10,7 @@ private:
     double *mat = NULL;
 
 public:
-    int row = -1, coloum = -1;
+    int row = -1, column = -1;
 
     Matrix();
     Matrix(int r, int c);
@@ -26,6 +26,7 @@ public:
     friend const Matrix operator * (const Matrix& lhs, const double rhs);
     friend const Matrix operator * (const Matrix& lhs, const Matrix& rhs);
     const Matrix inverse() const;
+    bool isEmpty() const;
     double det() const;
     const Matrix transpose() const;
     double* operator [] (int index);

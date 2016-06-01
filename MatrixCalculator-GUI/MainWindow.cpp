@@ -34,22 +34,25 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
     matrixTableWidget = new MatrixTableWidget(this);
     displayWidget = new DisplayWidget(this);
     inputFrame = new InputFrame(this);
 
+    connect(matrixTableWidget, &MatrixTableWidget::matrix_changed, displayWidget, &DisplayWidget::slot_display_matrix);
+    connect(inputFrame, &InputFrame::signal_calculate, matrixTableWidget, &MatrixTableWidget::slot_calculate);
+    connect(matrixTableWidget, &MatrixTableWidget::output_updated, displayWidget, &DisplayWidget::slot_display_output);
+    connect(displayWidget, &DisplayWidget::apply_matrix, matrixTableWidget, &MatrixTableWidget::slot_change_matrix);
+
     mainSplitter = new QSplitter(Qt::Horizontal, this);
     rightSplitter = new QSplitter(Qt::Vertical, this);
 
-    slideButton= new QPushButton(this); // after Splitter
+    slideButton= new QPushButton(this);
     slideButton->setFocusPolicy(Qt::NoFocus);
 
     rightSplitter->addWidget(displayWidget);
     rightSplitter->addWidget(inputFrame);
     mainSplitter->addWidget(matrixTableWidget);
     mainSplitter->addWidget(rightSplitter);
-    //mainSplitter->setStretchFactor(1, 1);//left not strenchable
     //mainSplitter->setStyleSheet("QmainSplitter::handle { background-color: black }"); //设置分界线的样式
 
     connect(mainSplitter,SIGNAL(splitterMoved(int,int)),this,SLOT(slot_splitterMoved(int,int)));
@@ -117,11 +120,13 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::slot_splitterMoved(int pos, int index)
 {
-     setBtnPos();
-     if(matrixTableWidget->width()==0)
-     {
-         setBtnIcon();
-     }
+    Q_UNUSED(pos)
+    Q_UNUSED(index)
+    setBtnPos();
+    if(matrixTableWidget->width()==0)
+    {
+        setBtnIcon();
+    }
  }
 
 void MainWindow::slot_slideButtonClicked()
@@ -154,262 +159,76 @@ mainSplitter->setSizes(newSize);  //move the SPLITTER
 
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{
 
-   int isWidth  = slideButton->pos().x() + slideButton->width();
-   int isHeight = slideButton->pos().y() + slideButton->height();
-
-   int x = event->pos().x();
-   int y = event->pos().y();
-
-//   if(x > slideButton->pos().x() && x < isWidth && y > slideButton->y() && y < isHeight)
-//   {
-//       slideButton->setVisible(true);
-//   }
-
-//   else
-//   {
-//       slideButton->setVisible(false);
-//   }
-
-
-}
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-void MainWindow::on_quitButton_clicked()
-{
-    this->close();
-}
 
-void MainWindow::on_addButton_2_clicked()
-{
-    AddMatrixDialog *dlg = new AddMatrixDialog(this);
-    dlg->show();
-}
 
-void MainWindow::on_addButton_clicked()
-{
-    int row, coloum;
-    QString matName = ui->matrixNameLine->text().trimmed();
-    if(matrices.contains(matName))
-    {
-        qDebug() << "already have matrix" << matName;
-        return;
-    }
 
-    QStringList list = ui->matrixText->toPlainText().trimmed().split('\n');
-    row = list.size();
-    if(row == 0)
-        return;
-    coloum = list.at(0).trimmed().split(QRegExp("[ ,|]")).size();
-    Matrix mat(row, coloum);
-    for(int r = 0; r < row; r++)
-    {
-        QStringList list2 = list.at(r).trimmed().split(QRegExp("[ ,|]"));
-        if(coloum != list2.size())
-        {
-            qDebug() << "coloum not equal";
-            return;
-        }
-        for(int c = 0; c < coloum; c++)
-            mat[r][c] = list2.at(c).toDouble();
-    }
-    matrices.insert(matName, mat);
-    mat.print();
+//void MainWindow::on_exportButton_clicked()
+//{
+//    QString path = QFileDialog::getSaveFileName(this, QString::fromLocal8Bit("请选择导出文件"), ".");
+//    if(path.isEmpty() == true)
+//    {
+//        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
+//        return;
+//    }
+//    QFile file(path);
+//    file.open(QFile::WriteOnly);
+//    QTextStream fout(&file);
+//    for(auto it = matrices.begin(); it != matrices.end(); ++it)
+//    {
+//        fout << it.key() << " " << it->row << " " << it->column << endl;
+//        for(int r = 0; r < it->row; ++r)
+//        {
+//            for(int c = 0; c < it->column; ++c)
+//            {
+//                fout << it.value()[r][c] << " ";
+//            }
+//            fout << endl;
+//        }
+//    }
+//    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导出文件成功"));
+//}
 
-    int curRow = ui->matrixTable->rowCount();
-    ui->matrixTable->insertRow(curRow);
-    ui->matrixTable->setItem(curRow, 0 , new QTableWidgetItem(matName));
-    ui->matrixTable->setItem(curRow, 1 , new QTableWidgetItem(QString::number(row)));
-    ui->matrixTable->setItem(curRow, 2 , new QTableWidgetItem(QString::number(coloum)));
-}
+//void MainWindow::on_importButton_clicked()
+//{
+//    QString path = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("请选择导入文件"), ".");
+//    if(path.isEmpty() == true)
+//    {
+//        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
+//        return;
+//    }
+//    QFile file(path);
+//    file.open(QFile::ReadOnly);
+//    QTextStream fin(&file);
+//    int row, column;
+//    QString matName;
+//    while(!fin.atEnd())
+//    {
+//        fin >> matName >> row >> column;
+//qDebug() << matName << " " << row << " " << column;
+//        Matrix mat(row, column);
+//        for(int r = 0; r < row; r++)
+//        {
+//            for(int c = 0; c < column; c++)
+//            {
+//                fin >> mat[r][c];
+//            }
+//        }
 
-void MainWindow::on_calcButton_clicked()
-{
-    char *exp = new char[ui->expLine->toPlainText().trimmed().size() + 1];
-    strcpy(exp, ui->expLine->toPlainText().trimmed().toStdString().data());
-    qDebug() << exp;
-    Calculator calc(matrices);
-    Matrix res = calc.calculate(exp);
-    ui->outputText->clear();
-    for(int r = 0; r < res.row; ++r)
-    {
-        QString str;
-        for(int c = 0; c < res.coloum; ++c)
-            str += (QString::number(res[r][c]) + QString("\t"));
-        ui->outputText->append(str);
-    }
-    delete exp;
-}
+//        matrices.insert(matName, mat);
+//        mat.print();
 
-int MainWindow::getMatrix(Matrix &result)
-{
-    //return:
-    // 1 success
-    // -1 no matrix
-    // -2 coloum not equal
-    int row, coloum;
-    QStringList list = ui->matrixText->toPlainText().trimmed().split('\n');
-    row = list.size();
-    if(row == 0)
-        return -1;
-    coloum = list.at(0).trimmed().split(QRegExp("[ ,|]")).size();
-    result.resize(row, coloum);
-    for(int r = 0; r < row; r++)
-    {
-        QStringList list2 = list.at(r).trimmed().split(QRegExp("[ ,|]"));
-        if(coloum != list2.size())
-        {
-            qDebug() << "coloum not equal";
-            return -2;
-        }
-        for(int c = 0; c < coloum; c++)
-            result[r][c] = list2.at(c).toDouble();
-    }
-    return 1;
-}
-
-void MainWindow::on_inverseButton_clicked()
-{
-    Matrix mat;
-    int rtn = getMatrix(mat);
-    switch(rtn)
-    {
-        case 1 :
-        {
-            Matrix res = mat.inverse();
-            ui->outputText->clear();
-            for(int r = 0; r < res.row; ++r)
-            {
-                QString str;
-                for(int c = 0; c < res.coloum; ++c)
-                    str += (QString::number(res[r][c]) + QString("\t"));
-                ui->outputText->append(str);
-            }
-            //res.print();
-            return;
-        }
-        case -1 : {qDebug() << "no matrix"; return;}
-        case -2 : {qDebug() << "coloum not equal"; return;}
-    }
-}
-
-void MainWindow::on_detButton_clicked()
-{
-    Matrix mat;
-    int rtn = getMatrix(mat);
-
-    switch(rtn)
-    {
-        case 1  : {ui->outputText->clear(); ui->outputText->setText(QString::number(mat.det())); return; }
-        case -1 : {qDebug() << "no matrix"; return;}
-        case -2 : {qDebug() << "coloum not equal"; return;}
-    }
-}
-
-void MainWindow::on_deleteButton_clicked()
-{
-    int row = ui->matrixTable->currentRow();
-    QString matName = ui->matrixTable->item(row, 0)->text();
-    if(!matrices.contains(matName))
-    {
-        qDebug() << "delete error, no matrix";
-        return;
-    }
-    matrices.remove(matName);
-    ui->matrixTable->removeRow(row);
-}
-
-void MainWindow::on_transposeButton_clicked()
-{
-    Matrix mat;
-    int rtn = getMatrix(mat);
-    switch(rtn)
-    {
-        case 1 :
-        {
-            Matrix res = mat.transpose();
-            ui->outputText->clear();
-            for(int r = 0; r < res.row; ++r)
-            {
-                QString str;
-                for(int c = 0; c < res.coloum; ++c)
-                    str += (QString::number(res[r][c]) + QString("\t"));
-                ui->outputText->append(str);
-            }
-            //res.print();
-            return;
-        }
-        case -1 : {qDebug() << "no matrix"; return;}
-        case -2 : {qDebug() << "coloum not equal"; return;}
-    }
-}
-
-void MainWindow::on_exportButton_clicked()
-{
-    QString path = QFileDialog::getSaveFileName(this, QString::fromLocal8Bit("请选择导出文件"), ".");
-    if(path.isEmpty() == true)
-    {
-        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
-        return;
-    }
-    QFile file(path);
-    file.open(QFile::WriteOnly);
-    QTextStream fout(&file);
-    for(auto it = matrices.begin(); it != matrices.end(); ++it)
-    {
-        fout << it.key() << " " << it->row << " " << it->coloum << endl;
-        for(int r = 0; r < it->row; ++r)
-        {
-            for(int c = 0; c < it->coloum; ++c)
-            {
-                fout << it.value()[r][c] << " ";
-            }
-            fout << endl;
-        }
-    }
-    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导出文件成功"));
-}
-
-void MainWindow::on_importButton_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("请选择导入文件"), ".");
-    if(path.isEmpty() == true)
-    {
-        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
-        return;
-    }
-    QFile file(path);
-    file.open(QFile::ReadOnly);
-    QTextStream fin(&file);
-    int row, coloum;
-    QString matName;
-    while(!fin.atEnd())
-    {
-        fin >> matName >> row >> coloum;
-qDebug() << matName << " " << row << " " << coloum;
-        Matrix mat(row, coloum);
-        for(int r = 0; r < row; r++)
-        {
-            for(int c = 0; c < coloum; c++)
-            {
-                fin >> mat[r][c];
-            }
-        }
-
-        matrices.insert(matName, mat);
-        mat.print();
-
-        int curRow = ui->matrixTable->rowCount();
-        ui->matrixTable->insertRow(curRow);
-        ui->matrixTable->setItem(curRow, 0 , new QTableWidgetItem(matName));
-        ui->matrixTable->setItem(curRow, 1 , new QTableWidgetItem(QString::number(row)));
-        ui->matrixTable->setItem(curRow, 2 , new QTableWidgetItem(QString::number(coloum)));
-    }
-    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导入文件成功"));
-}
+//        int curRow = ui->matrixTable->rowCount();
+//        ui->matrixTable->insertRow(curRow);
+//        ui->matrixTable->setItem(curRow, 0 , new QTableWidgetItem(matName));
+//        ui->matrixTable->setItem(curRow, 1 , new QTableWidgetItem(QString::number(row)));
+//        ui->matrixTable->setItem(curRow, 2 , new QTableWidgetItem(QString::number(column)));
+//    }
+//    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导入文件成功"));
+//}
