@@ -62,7 +62,7 @@ void DisplayWidget::on_transposeButton_clicked()
                 QMessageBox::warning(this, QString("失败"), QString("矩阵不完整"));
                 return;
             }
-            mat[r][c] = ui->displayTable->item(r, c)->text().toInt();
+            mat[r][c] = ui->displayTable->item(r, c)->text().toDouble();
         }
     }
     Matrix res = mat.transpose();
@@ -87,7 +87,7 @@ void DisplayWidget::on_detButton_clicked()
                 QMessageBox::warning(this, QString("失败"), QString("矩阵不完整"));
                 return;
             }
-            mat[r][c] = ui->displayTable->item(r, c)->text().toInt();
+            mat[r][c] = ui->displayTable->item(r, c)->text().toDouble();
         }
     }
     Matrix res(1, 1);
@@ -113,28 +113,22 @@ void DisplayWidget::on_inverseButton_clicked()
                 QMessageBox::warning(this, QString("失败"), QString("矩阵不完整"));
                 return;
             }
-            mat[r][c] = ui->displayTable->item(r, c)->text().toInt();
+            mat[r][c] = ui->displayTable->item(r, c)->text().toDouble();
         }
     }
 
-
+    if(mat.det() == 0)
+    {
+        QMessageBox::critical(this, QString("错误"), QString("不存在逆矩阵"));
+        return;
+    }
     Matrix res = mat.inverse();
-    if(res.isEmpty())
-    {
-        ui->outputTable->clear();
-        ui->outputTable->setRowCount(1);
-        ui->outputTable->setColumnCount(1);
-        ui->outputTable->setItem(0, 0 , new QTableWidgetItem(QString("不存在逆矩阵")));
-        ui->outputTable->resizeColumnsToContents();
-    }
-    else
-    {
-        slot_display_output(res);
-    }
+
+    slot_display_output(res);
     return;
 }
 
-void DisplayWidget::on_applyButton_clicked()
+void DisplayWidget::on_applyButton_clicked() //slot_change_matrix
 {
     QString name = ui->matrixNameLine->text();
     int row = ui->outputTable->rowCount();

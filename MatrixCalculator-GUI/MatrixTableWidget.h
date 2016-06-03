@@ -35,6 +35,8 @@ public slots:
     void slot_update_matrix(Matrix mat, QString name, QString info);
     void slot_change_matrix(QString prevName, Matrix mat, QString name, QString info);
     void slot_calculate(QString expression);
+    void slot_export_matrix();
+    void slot_import_matrix();
 
 signals:
     void matrix_changed(Matrix mat);

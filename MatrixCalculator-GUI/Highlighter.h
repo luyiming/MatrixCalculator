@@ -12,6 +12,9 @@ public:
 protected:
     void highlightBlock(const QString &text);
 
+public slots:
+    void slot_set_error_format(int index, int size);
+
 private:
     struct HighlightingRule
     {

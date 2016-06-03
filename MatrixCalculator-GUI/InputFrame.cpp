@@ -3,6 +3,7 @@
 #include "Highlighter.h"
 #include <QDebug>
 #include <QTextDocumentFragment>
+#include <QMessageBox>
 
 InputFrame::InputFrame(QWidget *parent) :
     QFrame(parent),
@@ -11,6 +12,7 @@ InputFrame::InputFrame(QWidget *parent) :
     ui->setupUi(this);
     ui->historyText->setEnabled(false);
     Highlighter *highlighter = new Highlighter(ui->inputLine->document());
+
 }
 
 InputFrame::~InputFrame()
@@ -22,22 +24,22 @@ void InputFrame::on_calcButton_clicked()
 {
     QString exp = ui->inputLine->toPlainText().trimmed();
     emit signal_calculate(exp);
-    QTextCursor cursor = ui->inputLine->textCursor();
-    cursor.movePosition(QTextCursor::Start);
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    ui->historyText->textCursor().insertFragment(cursor.selection());
-    //cursor.movePosition(QTextCursor::End);
-    //ui->historyText->setTextCursor(cursor);
-    //ui->historyText->setDocument(ui->inputLine->document());
+    ui->historyText->append(exp);
+}
 
 
-//    QTextBlock::iterator it;
-//    for (it = ui->inputLine->document()->begin().begin(); !(it.atEnd()); ++it) {
-//        QTextFragment currentFragment = it.fragment();
-//        if (currentFragment.isValid())
-//            cursor.insertFragment(currentFragment);
 
-       // QTextDocumentFragment frag(ui->inputLine->document());
+void InputFrame::on_importButton_clicked()
+{
+    emit signal_import_matrix();
+}
 
+void InputFrame::on_exportButton_clicked()
+{
+    emit signal_export_matrix();
+}
 
+void InputFrame::on_quitButton_clicked()
+{
+    emit signal_close();
 }

@@ -10,7 +10,7 @@
 #include <QIcon>
 #include <QStringList>
 #include <QMessageBox>
-
+#include <QFileDialog>
 
 
 MatrixTableWidget::MatrixTableWidget(QWidget *parent) :
@@ -152,21 +152,26 @@ void MatrixTableWidget::on_matrixTable_cellClicked(int row, int column)
     emit matrix_changed(mat);
 }
 
+
 void MatrixTableWidget::slot_calculate(QString expression)
 {
+
     char *exp = new char[expression.size() + 1];
     strcpy(exp, expression.toStdString().data());
     qDebug() << exp;
     Calculator calc(matrices);
-    Matrix res = calc.calculate(exp);
-    if(res.isEmpty())
+    if(calc.isValid(exp))
     {
-        qDebug() << "未定义矩阵";
-        emit info_updated("未定义矩阵");
-        return;
+        Matrix res = calc.calculate(exp);
+        if(res.isEmpty())
+        {
+            qDebug() << "未定义矩阵";
+            emit info_updated("未定义矩阵");
+            return;
+        }
+        else
+            emit output_updated(res);
     }
-    else
-        emit output_updated(res);
 }
 
 void MatrixTableWidget::on_matrixTable_cellDoubleClicked(int row, int column)
@@ -179,4 +184,75 @@ void MatrixTableWidget::on_matrixTable_cellDoubleClicked(int row, int column)
     addDialog->setModifyMode(mat, name, info);
     connect(addDialog, &AddMatrixDialog::matrix_changed, this, &MatrixTableWidget::slot_change_matrix);
     addDialog->show();
+}
+
+void MatrixTableWidget::slot_export_matrix()
+{
+    QString path = QFileDialog::getSaveFileName(this, QString::fromLocal8Bit("请选择导出文件"), ".");
+    if(path.isEmpty() == true)
+    {
+        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
+        return;
+    }
+    QFile file(path);
+    file.open(QFile::WriteOnly);
+    QTextStream fout(&file);
+    for(int i = 0; i < ui->matrixTable->rowCount(); i++)
+    {
+        QString name = ui->matrixTable->item(i, 0)->text();
+        Matrix &mat = matrices[name];
+        fout << name << " " << mat.row << " " << mat.column << " " << ui->matrixTable->item(i, 3)->text() << endl;
+        for(int r = 0; r < mat.row; ++r)
+        {
+            for(int c = 0; c < mat.column; ++c)
+            {
+                fout << mat[r][c] << " ";
+            }
+            fout << endl;
+        }
+    }
+    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导出文件成功"));
+}
+
+void MatrixTableWidget::slot_import_matrix()
+{
+    QString path = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("请选择导入文件"), ".");
+    if(path.isEmpty() == true)
+    {
+        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
+        return;
+    }
+    QFile file(path);
+    file.open(QFile::ReadOnly);
+    QTextStream fin(&file);
+    int row, column;
+    QString matName, info;
+    while(!fin.atEnd())
+    {
+        fin >> matName >> row >> column >> info;
+        if(fin.atEnd())
+            break;
+qDebug() << matName << " " << row << " " << column << info;
+        Matrix mat(row, column);
+        for(int r = 0; r < row; r++)
+        {
+            for(int c = 0; c < column; c++)
+            {
+                fin >> mat[r][c];
+            }
+        }
+        if(matrices.contains(matName))
+            continue;
+
+        matrices.insert(matName, mat);
+        mat.print();
+
+        int curRow = ui->matrixTable->rowCount();
+        ui->matrixTable->insertRow(curRow);
+        ui->matrixTable->setItem(curRow, 0 , new QTableWidgetItem(matName));
+        ui->matrixTable->setItem(curRow, 1 , new QTableWidgetItem(QString::number(row)));
+        ui->matrixTable->setItem(curRow, 2 , new QTableWidgetItem(QString::number(column)));
+        ui->matrixTable->setItem(curRow, 3 , new QTableWidgetItem(info));
+    }
+    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导入文件成功"));
 }

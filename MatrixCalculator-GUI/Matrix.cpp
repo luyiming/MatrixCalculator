@@ -1,6 +1,7 @@
 #include "Matrix.h"
 #include <cstring>
 #include <QDebug>
+#include <QMessageBox>
 
 Matrix::Matrix()
 {
@@ -284,3 +285,31 @@ bool Matrix::isEmpty() const
         return false;
 }
 
+bool isValid2(const Matrix& lhs, const Matrix& rhs, int token)
+{
+    switch(token)
+    {
+        case '+': case '-':
+        {
+            if(lhs.row == rhs.row && lhs.column == rhs.column)
+                return true;
+            else
+                return false;
+        }
+        case '*':
+        {
+            if(lhs.column == rhs.row)
+                return true;
+            else
+                return false;
+        }
+        case '/':
+        {
+            if(rhs.det() != 0 && lhs.column == rhs.row)
+                return true;
+            else
+                return false;
+        }
+    }
+    return false;
+}

@@ -42,6 +42,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(inputFrame, &InputFrame::signal_calculate, matrixTableWidget, &MatrixTableWidget::slot_calculate);
     connect(matrixTableWidget, &MatrixTableWidget::output_updated, displayWidget, &DisplayWidget::slot_display_output);
     connect(displayWidget, &DisplayWidget::apply_matrix, matrixTableWidget, &MatrixTableWidget::slot_change_matrix);
+    connect(inputFrame, &InputFrame::signal_export_matrix, matrixTableWidget, &MatrixTableWidget::slot_export_matrix);
+    connect(inputFrame, &InputFrame::signal_import_matrix, matrixTableWidget, &MatrixTableWidget::slot_import_matrix);
+    connect(inputFrame, &InputFrame::signal_close, this, &MainWindow::close);
+
 
     mainSplitter = new QSplitter(Qt::Horizontal, this);
     rightSplitter = new QSplitter(Qt::Vertical, this);
@@ -167,68 +171,3 @@ MainWindow::~MainWindow()
 }
 
 
-
-
-//void MainWindow::on_exportButton_clicked()
-//{
-//    QString path = QFileDialog::getSaveFileName(this, QString::fromLocal8Bit("请选择导出文件"), ".");
-//    if(path.isEmpty() == true)
-//    {
-//        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
-//        return;
-//    }
-//    QFile file(path);
-//    file.open(QFile::WriteOnly);
-//    QTextStream fout(&file);
-//    for(auto it = matrices.begin(); it != matrices.end(); ++it)
-//    {
-//        fout << it.key() << " " << it->row << " " << it->column << endl;
-//        for(int r = 0; r < it->row; ++r)
-//        {
-//            for(int c = 0; c < it->column; ++c)
-//            {
-//                fout << it.value()[r][c] << " ";
-//            }
-//            fout << endl;
-//        }
-//    }
-//    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导出文件成功"));
-//}
-
-//void MainWindow::on_importButton_clicked()
-//{
-//    QString path = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("请选择导入文件"), ".");
-//    if(path.isEmpty() == true)
-//    {
-//        QMessageBox::warning(this, QString::fromLocal8Bit("失败"), QString::fromLocal8Bit("未指定路径"));
-//        return;
-//    }
-//    QFile file(path);
-//    file.open(QFile::ReadOnly);
-//    QTextStream fin(&file);
-//    int row, column;
-//    QString matName;
-//    while(!fin.atEnd())
-//    {
-//        fin >> matName >> row >> column;
-//qDebug() << matName << " " << row << " " << column;
-//        Matrix mat(row, column);
-//        for(int r = 0; r < row; r++)
-//        {
-//            for(int c = 0; c < column; c++)
-//            {
-//                fin >> mat[r][c];
-//            }
-//        }
-
-//        matrices.insert(matName, mat);
-//        mat.print();
-
-//        int curRow = ui->matrixTable->rowCount();
-//        ui->matrixTable->insertRow(curRow);
-//        ui->matrixTable->setItem(curRow, 0 , new QTableWidgetItem(matName));
-//        ui->matrixTable->setItem(curRow, 1 , new QTableWidgetItem(QString::number(row)));
-//        ui->matrixTable->setItem(curRow, 2 , new QTableWidgetItem(QString::number(column)));
-//    }
-//    QMessageBox::information(this, QString::fromLocal8Bit("成功"), QString::fromLocal8Bit("导入文件成功"));
-//}

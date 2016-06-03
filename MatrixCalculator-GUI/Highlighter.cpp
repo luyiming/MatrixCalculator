@@ -1,6 +1,7 @@
 #include "Highlighter.h"
 #include <QSyntaxHighlighter>
 #include <QDebug>
+#include <QStack>
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
@@ -41,22 +42,29 @@ void Highlighter::highlightBlock(const QString &text)
     errorFormat.setBackground(Qt::red);
     errorFormat.setForeground(Qt::white);
     format.setForeground(Qt::black);
-    int  startIndex = text.indexOf("(");
-    while (startIndex >= 0)
+
+    QStack<int> st1, st2;
+    for(int i = 0; i < text.size(); ++i)
     {
-        int endIndex = text.indexOf(")", startIndex);
-        if (endIndex == -1)
+        if(text.at(i) == '(')
         {
-            setFormat(startIndex, 1, errorFormat);
-            break;
+            st2.push(i);
+            st1.push('(');
         }
-        else
+        else if(text.at(i) == ')')
         {
-            setFormat(startIndex, 1, format);
-            setFormat(endIndex, 1, format);
-            startIndex = text.indexOf("(", startIndex + 1);
+            if(st1.isEmpty())
+                setFormat(i, 1, errorFormat);
+            else
+            {
+                st1.pop();
+                st2.pop();
+            }
         }
     }
+    while(!st2.isEmpty())
+        setFormat(st2.pop(), 1, errorFormat);
+
 
     foreach(const HighlightingRule &rule, highlightingRules)
     {
@@ -69,8 +77,17 @@ void Highlighter::highlightBlock(const QString &text)
             index = expression.indexIn(text, index + length);
         }
     }
-
+qDebug() << 123;
     setCurrentBlockState(0);
 }
 
 
+void Highlighter::slot_set_error_format(int index, int size)
+{
+    qDebug() << index << size;
+    QTextCharFormat errorFormat;
+    errorFormat.setBackground(Qt::red);
+    errorFormat.setForeground(Qt::white);
+
+    setFormat(index, size, errorFormat);
+}

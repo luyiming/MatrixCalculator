@@ -18,6 +18,9 @@ AddMatrixDialog::AddMatrixDialog(QWidget *parent, QMap<QString, Matrix> mats) :
     ui->matrixTable_3->setColumnCount(3);
 
     ui->matrixOrder_3->setCurrentIndex(1);
+
+    ui->matrixOrder_1->setMinimum(1);
+    ui->matrixOrder_2->setMinimum(1);
 }
 
 AddMatrixDialog::~AddMatrixDialog()
@@ -92,7 +95,7 @@ void AddMatrixDialog::on_addButton_clicked()
                         QMessageBox::warning(this, QString("失败"), QString("矩阵不完整"));
                         return;
                     }
-                    mat[r][c] = ui->matrixTable_0->item(r, c)->text().toInt();
+                    mat[r][c] = ui->matrixTable_0->item(r, c)->text().toDouble();
                 }
             }
             if(modifyMode)
@@ -167,7 +170,7 @@ void AddMatrixDialog::on_addButton_clicked()
                         QMessageBox::warning(this, QString("失败"), QString("矩阵不完整"));
                         return;
                     }
-                    mat[r][c] = ui->matrixTable_3->item(r, c)->text().toInt();
+                    mat[r][c] = ui->matrixTable_3->item(r, c)->text().toDouble();
                 }
             }
             if(modifyMode)

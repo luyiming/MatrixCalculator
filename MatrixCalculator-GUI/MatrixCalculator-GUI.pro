@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     MatrixTableWidget.cpp \
     DisplayWidget.cpp \
     InputFrame.cpp \
-    Highlighter.cpp
+    Highlighter.cpp \
+    Fraction.cpp
 
 HEADERS  += MainWindow.h \
     AddMatrixDialog.h \
@@ -29,7 +30,8 @@ HEADERS  += MainWindow.h \
     MatrixTableWidget.h \
     DisplayWidget.h \
     InputFrame.h \
-    Highlighter.h
+    Highlighter.h \
+    Fraction.h
 
 FORMS    += MainWindow.ui \
     AddMatrixDialog.ui \

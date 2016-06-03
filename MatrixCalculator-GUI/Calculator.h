@@ -4,6 +4,9 @@
 #include "Matrix.h"
 #include <QMap>
 #include <QStack>
+#include <QObject>
+#include "MatrixTableWidget.h"
+#include "ui_MatrixTableWidget.h"
 
 enum {
   Num = 128, Id, Add, Sub, Mul, Div, Inv,/*inverse*/ Brak
@@ -11,15 +14,18 @@ enum {
 
 class Calculator
 {
+
 public:
     Calculator();
     ~Calculator();
     Calculator(QMap<QString, Matrix> &mats);
     Matrix calculate(const char* exp);
+    bool isValid(const char* exp);
 
 private:
     QMap<QString, Matrix> matrices;
-    char* src = NULL;
+
+    char *src = NULL, *head = NULL;
     int token;
     QStack<int> symbol_stack;
     QStack<int> value_stack;
@@ -28,7 +34,7 @@ private:
     void match(int tk);
 
     int get_next_token();
-    void calc(int token);
+    int calc(int token);
 };
 
 #endif // CALCULATOR_H

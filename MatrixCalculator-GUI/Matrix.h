@@ -32,7 +32,11 @@ public:
     double* operator [] (int index);
     const double* operator [] (int index) const;
     void print();
+
+    friend bool isValid2(const Matrix& lhs, const Matrix& rhs, int token);
 };
+
+
 
 
 
