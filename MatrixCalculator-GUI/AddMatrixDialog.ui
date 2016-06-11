@@ -362,7 +362,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="angleLine"/>
+            <widget class="QLineEdit" name="angleLine">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QLabel" name="label_2">
@@ -372,7 +376,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="radianLine"/>
+            <widget class="QLineEdit" name="radianLine">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QLabel" name="label_3">

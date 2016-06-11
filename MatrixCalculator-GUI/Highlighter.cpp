@@ -82,12 +82,3 @@ qDebug() << 123;
 }
 
 
-void Highlighter::slot_set_error_format(int index, int size)
-{
-    qDebug() << index << size;
-    QTextCharFormat errorFormat;
-    errorFormat.setBackground(Qt::red);
-    errorFormat.setForeground(Qt::white);
-
-    setFormat(index, size, errorFormat);
-}

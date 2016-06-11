@@ -30,7 +30,7 @@ signals:
     void signal_export_matrix();
     void signal_import_matrix();
     void signal_close();
-    void signal_error(int index, int size);
+//    void signal_error(int index, int size);
 
 private:
     Ui::InputFrame *ui;

@@ -267,8 +267,11 @@ void AddMatrixDialog::on_matrixOrder_3_currentIndexChanged(const QString &arg1)
         ui->matrixTable_3->setRowCount(4);
         ui->matrixTable_3->setColumnCount(4);
     }
-}
 
+    //change matrix
+    on_angleLine_textEdited(ui->angleLine->text());
+
+}
 
 void AddMatrixDialog::on_angleLine_textEdited(const QString &arg1)
 {
@@ -358,6 +361,54 @@ void AddMatrixDialog::on_radianLine_textEdited(const QString &arg1)
             ui->matrixTable_3->setItem(2, 2, new QTableWidgetItem(a));
         }
         else if(ui->rotationBox->currentText() == "z")
+        {
+            ui->matrixTable_3->setItem(2, 2, new QTableWidgetItem(QString("1")));
+            ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(a));
+            ui->matrixTable_3->setItem(0, 1, new QTableWidgetItem(b));
+            ui->matrixTable_3->setItem(1, 0, new QTableWidgetItem(c));
+            ui->matrixTable_3->setItem(1, 1, new QTableWidgetItem(a));
+        }
+    }
+}
+
+void AddMatrixDialog::on_rotationBox_currentIndexChanged(const QString &arg1)
+{
+    //if ui->radianLine->text() is empty, display 0
+    double radian = ui->radianLine->text().toDouble();
+    for(int r = 0; r < ui->matrixTable_3->rowCount(); ++r)
+        for(int c = 0; c < ui->matrixTable_3->columnCount(); ++c)
+            ui->matrixTable_3->setItem(r, c, new QTableWidgetItem(QString("0")));
+
+    QString a = QString::number(cos(radian), 'g', 2);
+    QString b = QString::number(-sin(radian), 'g', 2);
+    QString c = QString::number(sin(radian), 'g', 2);
+
+    if(ui->matrixOrder_3->currentText() == "2")
+    {
+        ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(a));
+        ui->matrixTable_3->setItem(0, 1, new QTableWidgetItem(b));
+        ui->matrixTable_3->setItem(1, 0, new QTableWidgetItem(c));
+        ui->matrixTable_3->setItem(1, 1, new QTableWidgetItem(a));
+    }
+    else if(ui->matrixOrder_3->currentText() == "3")
+    {
+        if(arg1 == "x")
+        {
+            ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(QString("1")));
+            ui->matrixTable_3->setItem(1, 1, new QTableWidgetItem(a));
+            ui->matrixTable_3->setItem(1, 2, new QTableWidgetItem(b));
+            ui->matrixTable_3->setItem(2, 1, new QTableWidgetItem(c));
+            ui->matrixTable_3->setItem(2, 2, new QTableWidgetItem(a));
+        }
+        else if(arg1 == "y")
+        {
+            ui->matrixTable_3->setItem(1, 1, new QTableWidgetItem(QString("1")));
+            ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(a));
+            ui->matrixTable_3->setItem(0, 2, new QTableWidgetItem(b));
+            ui->matrixTable_3->setItem(2, 0, new QTableWidgetItem(c));
+            ui->matrixTable_3->setItem(2, 2, new QTableWidgetItem(a));
+        }
+        else if(arg1 == "z")
         {
             ui->matrixTable_3->setItem(2, 2, new QTableWidgetItem(QString("1")));
             ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(a));

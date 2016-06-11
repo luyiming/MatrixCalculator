@@ -32,13 +32,11 @@ private slots:
 
     void on_matrixOrder_3_currentIndexChanged(const QString &arg1);
 
-    void on_angleLine_textChanged(const QString &arg1);
-
-    void on_radianLine_textChanged(const QString &arg1);
-
     void on_angleLine_textEdited(const QString &arg1);
 
     void on_radianLine_textEdited(const QString &arg1);
+
+    void on_rotationBox_currentIndexChanged(const QString &arg1);
 
 signals:
     void matrix_added(Matrix mat, QString name, QString info);
