@@ -3,6 +3,10 @@
 
 #include <QFrame>
 #include <QString>
+#include "Calculator.h"
+#include "Highlighter.h"
+#include <QDebug>
+#include <QTextDocumentFragment>
 
 namespace Ui {
 class InputFrame;
@@ -25,6 +29,9 @@ private slots:
 
     void on_quitButton_clicked();
 
+public slots:
+    void slot_setError(int position, int offset);
+
 signals:
     void signal_calculate(QString exp);
     void signal_export_matrix();
@@ -34,6 +41,7 @@ signals:
 
 private:
     Ui::InputFrame *ui;
+    Highlighter *highlighter;
 };
 
 #endif // INPUTFRAME_H

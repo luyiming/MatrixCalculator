@@ -10,7 +10,7 @@ private:
     double *mat = NULL;
 
 public:
-    int row = -1, column = -1;
+    int row = 0, column = 0;
 
     Matrix();
     Matrix(int r, int c);

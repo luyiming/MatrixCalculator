@@ -39,6 +39,10 @@ int Calculator::get_next_token()
         if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || (token == '_'))
         {
             last_pos = src - 1;
+
+            Token_value tk_val;
+            tk_val.position = src - 1 - head;
+
             while (isalnum(*src) || (*src == '_'))
                 src++;
             QString matName = QString::fromLatin1(last_pos, src - last_pos);
@@ -48,12 +52,19 @@ int Calculator::get_next_token()
                 QMessageBox::critical(NULL, QString("错误"), QString("未定义的矩阵名 : %1").arg(matName));
                 return -1;
             }
-            mat_val.push(matrices[matName]);
+
+            tk_val.mat = matrices[matName];
+            tk_val.offset = src - head - tk_val.position;
+            token_values.push(tk_val);
+
             return Id;
         }
         else if (token >= '0' && token <= '9')
         {
             last_pos = src - 1;
+
+            Token_value tk_val;
+            tk_val.position = src - 1 - head;
 
             while ((*src >= '0' && *src <= '9') || *src == '.')
                 src++;
@@ -65,7 +76,11 @@ int Calculator::get_next_token()
                 QMessageBox::critical(NULL, QString("错误"), QString("%1 数字格式错误").arg(str));
                 return -1;
             }
-            num_val.push(value);
+
+            tk_val.offset = src - head - tk_val.position;
+            tk_val.value = value;
+            token_values.push(tk_val);
+
             return Num;
         }
         else if (token == '+') {
@@ -82,8 +97,7 @@ int Calculator::get_next_token()
         }
         else if(token == '|') {
             if(*src != '1') {
-                QString str = QString::fromLatin1(head, src - head);
-                QMessageBox::critical(NULL, QString("错误"), QString("矩阵求逆符号错误,位置为 %1 <---").arg(str));
+                QMessageBox::critical(NULL, QString("错误"), QString("矩阵求逆符号错误"));
                 return -1;
             }
             src++;
@@ -99,8 +113,7 @@ int Calculator::get_next_token()
 
 int Calculator::calc(int token)
 {
-    Matrix rhs, lhs;
-    double lhs_num, rhs_num;
+    Token_value rhs, lhs;
     switch(token)
     {
         case Add :
@@ -113,18 +126,18 @@ int Calculator::calc(int token)
             if(value_stack.top() == Id)
             {
                 value_stack.pop();
-                rhs = mat_val.pop();
+                rhs = token_values.pop();
                 if(value_stack.top() == Id)
                 {
                     value_stack.pop();
-                    lhs = mat_val.pop();
+                    lhs = token_values.pop();
                     value_stack.push(Id);
-                    if(!isValid2(lhs, rhs, '+'))
+                    if(!isValid2(lhs.mat, rhs.mat, '+'))
                     {
                         QMessageBox::critical(NULL, QString("错误"), QString("加法阶数不匹配"));
                         return -1;
                     }
-                    mat_val.push(lhs + rhs);
+                    token_values.push(lhs + rhs);
                 }
                 else if(value_stack.top() == Num)
                 {
@@ -135,13 +148,13 @@ int Calculator::calc(int token)
             else if(value_stack.top() == Num)
             {
                 value_stack.pop();
-                rhs_num = num_val.pop();
+                rhs = token_values.pop();
                 if(value_stack.top() == Num)
                 {
                     value_stack.pop();
-                    lhs_num = num_val.pop();
+                    lhs = token_values.pop();
                     value_stack.push(Num);
-                    num_val.push(lhs_num + rhs_num);
+                    token_values.push(lhs + rhs);
                 }
                 else if(value_stack.top() == Id)
                 {
@@ -161,18 +174,18 @@ int Calculator::calc(int token)
             if(value_stack.top() == Id)
             {
                 value_stack.pop();
-                rhs = mat_val.pop();
+                rhs = token_values.pop();
                 if(value_stack.top() == Id)
                 {
                     value_stack.pop();
-                    lhs = mat_val.pop();
+                    lhs = token_values.pop();
                     value_stack.push(Id);
-                    if(!isValid2(lhs, rhs, '-'))
+                    if(!isValid2(lhs.mat, rhs.mat, '-'))
                     {
                         QMessageBox::critical(NULL, QString("错误"), QString("减法阶数不匹配"));
                         return -1;
                     }
-                    mat_val.push(lhs - rhs);
+                    token_values.push(lhs - rhs);
                 }
                 else if(value_stack.top() == Num)
                 {
@@ -183,13 +196,13 @@ int Calculator::calc(int token)
             else if(value_stack.top() == Num)
             {
                 value_stack.pop();
-                rhs_num = num_val.pop();
+                rhs = token_values.pop();
                 if(value_stack.top() == Num)
                 {
                     value_stack.pop();
-                    lhs_num = num_val.pop();
+                    lhs = token_values.pop();
                     value_stack.push(Num);
-                    num_val.push(lhs_num - rhs_num);
+                    token_values.push(lhs - rhs);
                 }
                 else if(value_stack.top() == Id)
                 {
@@ -209,17 +222,17 @@ int Calculator::calc(int token)
 
             if(value_stack.top() == Num)
             {
-                rhs_num = num_val.pop();
+                rhs = token_values.pop();
                 value_stack.pop();
                 if(value_stack.top() == Num)
                 {
-                    lhs_num = num_val.pop();
-                    num_val.push(lhs_num * rhs_num);
+                    lhs = token_values.pop();
+                    token_values.push(lhs * rhs);
                 }
                 else if(value_stack.top() == Id)
                 {
-                    lhs = mat_val.pop();
-                    mat_val.push(lhs * rhs_num);
+                    lhs = token_values.pop();
+                    token_values.push(lhs.val_right_mul(rhs));
                 }
                 else
                 {
@@ -229,23 +242,23 @@ int Calculator::calc(int token)
             else if(value_stack.top() == Id)
             {
                 value_stack.pop();
-                rhs = mat_val.pop();
+                rhs = token_values.pop();
                 if(value_stack.top() == Num)
                 {
                     value_stack.pop();
-                    lhs_num = num_val.pop();
+                    lhs = token_values.pop();
                     value_stack.push(Id);
-                    mat_val.push(lhs_num * rhs);
+                    token_values.push(rhs.val_left_mul(lhs));
                 }
                 else if(value_stack.top() == Id)
                 {
-                    lhs = mat_val.pop();
-                    if(!isValid2(lhs, rhs, '*'))
+                    lhs = token_values.pop();
+                    if(!isValid2(lhs.mat, rhs.mat, '*'))
                     {
                         QMessageBox::critical(NULL, QString("错误"), QString("乘法阶数不匹配"));
                         return -1;
                     }
-                    mat_val.push(lhs * rhs);
+                    token_values.push(lhs * rhs);
                 }
                 else
                 {
@@ -259,60 +272,80 @@ int Calculator::calc(int token)
             if(value_stack.top() == Id)
             {
                 value_stack.pop();
-                rhs = mat_val.pop();
+                rhs = token_values.pop();
                 if(value_stack.top() == Id)
                 {
                     value_stack.pop();
-                    lhs = mat_val.pop();
+                    lhs = token_values.pop();
                     value_stack.push(Id);
-                    if(!isValid2(lhs, rhs, '/'))
+                    if(!isValid2(lhs.mat, rhs.mat, '/'))
                     {
                         QMessageBox::critical(NULL, QString("错误"), QString("除法阶数不匹配"));
                         return -1;
                     }
-                    mat_val.push(lhs / rhs);
+                    token_values.push(lhs / rhs);
                 }
                 else if(value_stack.top() == Num)
                 {
-                    qDebug() << "add operation error, not matrix";
+                    QMessageBox::critical(NULL, QString("错误"), QString("除法两边不是矩阵"));
+                    return -1;
                 }
                 else
-                    qDebug() << "add operation error, unknown";
+                {
+                    QMessageBox::critical(NULL, QString("错误"), QString("除法:未知错误"));
+                    return -1;
+                }
             }
             else if(value_stack.top() == Num)
             {
                 value_stack.pop();
-                rhs_num = num_val.pop();
+                rhs = token_values.pop();
                 if(value_stack.top() == Num)
                 {
                     value_stack.pop();
-                    lhs_num = num_val.pop();
+                    lhs = token_values.pop();
                     value_stack.push(Num);
-                    num_val.push(lhs_num / rhs_num);
+                    token_values.push(lhs / rhs);
                 }
                 else if(value_stack.top() == Id)
                 {
-                    qDebug() << "add operation error, not matrix";
+                    QMessageBox::critical(NULL, QString("错误"), QString("除法两边不是矩阵"));
+                    return -1;
                 }
                 else
-                    qDebug() << "add operation error, unknown";
+                {
+                    QMessageBox::critical(NULL, QString("错误"), QString("除法:未知错误"));
+                    return -1;
+                }
             }
             else
-                qDebug() << "add operation error, unknown";
+            {
+                QMessageBox::critical(NULL, QString("错误"), QString("除法:未知错误"));
+                return -1;
+            }
             break;
         }
         case Inv :
         {
             if(value_stack.pop() != Id)
-                qDebug() << "inverse operation error, not matrix";
-            Matrix mat = mat_val.pop();
-            value_stack.push(Id);
-            if(mat.det() == 0)
             {
-                QMessageBox::critical(NULL, QString("错误"), QString("矩阵无逆矩阵, %1 <----").arg(QString::fromLatin1(head, src - head)));
+                QMessageBox::critical(NULL, QString("错误"), QString("求逆运算操作数不是矩阵"));
                 return -1;
             }
-            mat_val.push(mat.inverse());
+            rhs = token_values.pop();
+            value_stack.push(Id);
+            if(rhs.mat.det() == 0)
+            {
+                QMessageBox::critical(NULL, QString("错误"), QString("矩阵无逆矩阵"));
+                return -1;
+            }
+            if(rhs.mat.row != rhs.mat.column)
+            {
+                QMessageBox::critical(NULL, QString("错误"), QString("矩阵无逆矩阵"));
+                return -1;
+            }
+            rhs.mat = rhs.mat.inverse();
+            token_values.push(rhs);
             break;
         }
     }
@@ -321,10 +354,12 @@ int Calculator::calc(int token)
 
 Matrix Calculator::calculate(const char* exp)
 {
-
     this->src = new char[strlen(exp) + 1];
     head = src;
     strcpy(src, exp);
+
+    symbol_stack.clear();
+    token_values.clear();
 
     symbol_stack.push(-100);
     Matrix rhs, lhs;
@@ -343,9 +378,24 @@ Matrix Calculator::calculate(const char* exp)
             symbol_stack.push('(');
         else if(token == ')')
         {
-            while((token = symbol_stack.pop()) != '(')
+            bool ok = false;
+            while(!symbol_stack.isEmpty())
+            {
+                token = symbol_stack.pop();
+                if(token == '(')
+                {
+                    ok = true;
+                    break;
+                }
                 if(calc(token) == -1)
                     return Matrix();
+            }
+            if(!ok)
+            {
+                QMessageBox::critical(NULL, QString("错误"), QString("缺少左括号"));
+                return Matrix();
+            }
+
         }
         else
         {
@@ -361,85 +411,365 @@ Matrix Calculator::calculate(const char* exp)
         }
     }
     while(!symbol_stack.empty())
-        if(calc(symbol_stack.pop()) == -1)
+    {
+        token = symbol_stack.pop();
+        if(token == '(')
+        {
+            QMessageBox::critical(NULL, QString("错误"), QString("缺少右括号"));
             return Matrix();
+        }
+        if(calc(token) == -1)
+            return Matrix();
+    }
+
+    Matrix res;
     if(value_stack.top() == Num)
     {
-        qDebug() << num_val.top();
+        res.resize(1, 1);
+        res[0][0] = token_values.pop().value;
     }
-    if(value_stack.top() != Id)
+    else if(value_stack.top() == Id)
     {
-        qDebug() << "result is not matrix";
-        return Matrix();
+        res = token_values.pop().mat;
+        res.print();
     }
-    Matrix res = mat_val.pop();
-    res.print();
+
     delete []head;
     src = NULL;
     return res;
 }
 
-bool Calculator::isValid(const char* exp)
+bool Calculator::isValid(const char* exp, int *position, int *offset)
 {
+    *position = -1;
+    *offset = 0;
     this->src = new char[strlen(exp) + 1];
     head = src;
     strcpy(src, exp);
 
-    QStack<int> st;
-    int prevToken, token;
+    symbol_stack.clear();
+    token_values.clear();
+
+    symbol_stack.push(-100);
+    Matrix rhs, lhs;
+    int token;
     while(token = get_next_token())
     {
-        if(token == -1)
+        if(token == -1) //undefined matrix
         {
             return false;
         }
         if(token == Id)
-        {
-            if(prevToken == Num)
-            {
-                QMessageBox::critical(NULL, QString("错误"), QString("数字和矩阵之间缺少运算符"));
-                return false;
-            }
-            prevToken = Id;
-        }
+            value_stack.push(Id);
         else if(token == Num)
-        {
-            if(prevToken == Id)
-            {
-                QMessageBox::critical(NULL, QString("错误"), QString("数字和矩阵之间缺少运算符"));
-                return false;
-            }
-        }
-        else if(token == Add || token == Sub || token == Mul || token == Div || token == Inv)
-        {
-            if(prevToken == Id || prevToken == Num || prevToken == ')')
-                prevToken = token;
-            else if(prevToken == Inv && token == Inv)
-                prevToken = token;
-            else
-            {
-                QMessageBox::critical(NULL, QString("错误"), QString("多余操作符"));
-                return false;
-            }
-        }
+            value_stack.push(Num);
         else if(token == '(')
-            st.push('(');
+            symbol_stack.push('(');
         else if(token == ')')
         {
-            if(st.isEmpty())
+            bool ok = false;
+            while(!symbol_stack.isEmpty())
             {
-                QMessageBox::critical(NULL, QString("错误"), QString("缺少左括号"));
+                token = symbol_stack.pop();
+                if(token == '(')
+                {
+                    ok = true;
+                    break;
+                }
+                if(isValid_helper(token, position, offset) == -1)
+                    false;
+            }
+            if(!ok)
+            {
                 return false;
             }
-            else
-                st.pop();
         }
-        prevToken = token;
+        else
+        {
+            if(token > symbol_stack.top())
+                symbol_stack.push(token);
+            else
+            {
+                while(token <= symbol_stack.top())
+                    if(isValid_helper(symbol_stack.pop(), position, offset) == -1)
+                        return false;
+                symbol_stack.push(token);
+            }
+        }
     }
-    if(!st.isEmpty())
+
+    while(!symbol_stack.empty())
     {
-        QMessageBox::critical(NULL, QString("错误"), QString("缺少右括号"));
-        return false;
+        token = symbol_stack.pop();
+        if(token == '(')
+        {
+            return false;
+        }
+        if(isValid_helper(token, position, offset) == -1)
+            return false;
     }
+
+
+    delete []head;
+    src = NULL;
     return true;
+}
+
+int Calculator::isValid_helper(int token, int *position, int *offset)
+{
+    *position = -1;
+    *offset = 0;
+    Token_value rhs, lhs;
+    switch(token)
+    {
+        case Add :
+        {
+            if(value_stack.top() == Id)
+            {
+                value_stack.pop();
+                rhs = token_values.pop();
+                if(value_stack.top() == Id)
+                {
+                    value_stack.pop();
+                    lhs = token_values.pop();
+                    value_stack.push(Id);
+                    if(!isValid2(lhs.mat, rhs.mat, '+'))
+                    {
+                        *position = lhs.position;
+                        *offset = rhs.position - lhs.position + rhs.offset;
+                        return -1;
+                    }
+                    token_values.push(lhs + rhs);
+                }
+                else if(value_stack.top() == Num)
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+            }
+            else if(value_stack.top() == Num)
+            {
+                value_stack.pop();
+                rhs = token_values.pop();
+                if(value_stack.top() == Num)
+                {
+                    value_stack.pop();
+                    lhs = token_values.pop();
+                    value_stack.push(Num);
+                    token_values.push(lhs + rhs);
+                }
+                else if(value_stack.top() == Id)
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+            }
+            else
+            {
+                return -1;
+            }
+            break;
+        }
+        case Sub :
+        {
+            if(value_stack.top() == Id)
+            {
+                value_stack.pop();
+                rhs = token_values.pop();
+                if(value_stack.top() == Id)
+                {
+                    value_stack.pop();
+                    lhs = token_values.pop();
+                    value_stack.push(Id);
+                    if(!isValid2(lhs.mat, rhs.mat, '-'))
+                    {
+                        *position = lhs.position;
+                        *offset = rhs.position - lhs.position + rhs.offset;
+                        return -1;
+                    }
+                    token_values.push(lhs - rhs);
+                }
+                else if(value_stack.top() == Num)
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+            }
+            else if(value_stack.top() == Num)
+            {
+                value_stack.pop();
+                rhs = token_values.pop();
+                if(value_stack.top() == Num)
+                {
+                    value_stack.pop();
+                    lhs = token_values.pop();
+                    value_stack.push(Num);
+                    token_values.push(lhs - rhs);
+                }
+                else if(value_stack.top() == Id)
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+            }
+            else
+            {
+                return -1;
+            }
+            break;
+        }
+        case Mul :
+        {
+
+            if(value_stack.top() == Num)
+            {
+                rhs = token_values.pop();
+                value_stack.pop();
+                if(value_stack.top() == Num)
+                {
+                    lhs = token_values.pop();
+                    token_values.push(lhs * rhs);
+                }
+                else if(value_stack.top() == Id)
+                {
+                    lhs = token_values.pop();
+                    token_values.push(lhs.val_right_mul(rhs));
+                }
+                else
+                {
+                    //handle error
+                }
+            }
+            else if(value_stack.top() == Id)
+            {
+                value_stack.pop();
+                rhs = token_values.pop();
+                if(value_stack.top() == Num)
+                {
+                    value_stack.pop();
+                    lhs = token_values.pop();
+                    value_stack.push(Id);
+                    token_values.push(rhs.val_left_mul(lhs));
+                }
+                else if(value_stack.top() == Id)
+                {
+                    lhs = token_values.pop();
+                    if(!isValid2(lhs.mat, rhs.mat, '*'))
+                    {
+                        *position = lhs.position;
+                        *offset = rhs.position - lhs.position + rhs.offset;
+                        return -1;
+                    }
+                    token_values.push(lhs * rhs);
+                }
+                else
+                {
+                    //handle error
+                }
+            }
+            break;
+        }
+        case Div :
+        {
+            if(value_stack.top() == Id)
+            {
+                value_stack.pop();
+                rhs = token_values.pop();
+                if(value_stack.top() == Id)
+                {
+                    value_stack.pop();
+                    lhs = token_values.pop();
+                    value_stack.push(Id);
+                    if(!isValid2(lhs.mat, rhs.mat, '/'))
+                    {
+                        *position = lhs.position;
+                        *offset = rhs.position - lhs.position + rhs.offset;
+                        return -1;
+                    }
+                    token_values.push(lhs / rhs);
+                }
+                else if(value_stack.top() == Num)
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+                else
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+            }
+            else if(value_stack.top() == Num)
+            {
+                value_stack.pop();
+                rhs = token_values.pop();
+                if(value_stack.top() == Num)
+                {
+                    value_stack.pop();
+                    lhs = token_values.pop();
+                    value_stack.push(Num);
+                    token_values.push(lhs / rhs);
+                }
+                else if(value_stack.top() == Id)
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+                else
+                {
+                    lhs = token_values.pop();
+                    *position = lhs.position;
+                    *offset = rhs.position - lhs.position + rhs.offset;
+                    return -1;
+                }
+            }
+            else
+            {
+                return -1;
+            }
+            break;
+        }
+        case Inv :
+        {
+            if(value_stack.pop() != Id)
+            {
+                rhs = token_values.pop();
+                *position = rhs.position;
+                *offset = rhs.offset + 2;
+                return -1;
+            }
+            rhs = token_values.pop();
+            value_stack.push(Id);
+            if(rhs.mat.det() == 0)
+            {
+                *position = rhs.position;
+                *offset = rhs.offset + 2;
+                return -1;
+            }
+            if(rhs.mat.row != rhs.mat.column)
+            {
+                *position = rhs.position;
+                *offset = rhs.offset + 2;
+                return -1;
+            }
+            rhs.mat.inverse();
+            token_values.push(rhs);
+            break;
+        }
+    }
+    return 1;
 }

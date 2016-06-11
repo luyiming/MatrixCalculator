@@ -17,6 +17,12 @@ Matrix::Matrix(int r, int c)
         this->mat = new double[r * c];
         memset(mat, 0, sizeof(double) * r * c);
     }
+    else
+    {
+        this->row = 0;
+        this->column = 0;
+        this->mat = NULL;
+    }
 }
 
 Matrix::~Matrix()
@@ -27,10 +33,19 @@ Matrix::~Matrix()
 
 Matrix::Matrix(const Matrix& rhs)
 {
-    this->row = rhs.row;
-    this->column = rhs.column;
-    this->mat = new double[row * column];
-    memcpy(this->mat, rhs.mat, sizeof(double) * row * column);
+    if(rhs.row > 0 && rhs.column > 0)
+    {
+        this->row = rhs.row;
+        this->column = rhs.column;
+        this->mat = new double[row * column];
+        memcpy(this->mat, rhs.mat, sizeof(double) * row * column);
+    }
+    else
+    {
+        this->row = 0;
+        this->column = 0;
+        this->mat = NULL;
+    }
 }
 
 
@@ -169,7 +184,7 @@ const double* Matrix::operator [] (int index) const
 
 const Matrix Matrix::transpose() const
 {
-    Matrix res(row, column);
+    Matrix res(column, row);
     for(int r = 0; r < row; ++r)
     {
         for(int c = 0; c < column; ++c)
@@ -277,6 +292,7 @@ void Matrix::print()
     }
 }
 
+
 bool Matrix::isEmpty() const
 {
     if(mat == NULL)
@@ -313,3 +329,69 @@ bool isValid2(const Matrix& lhs, const Matrix& rhs, int token)
     }
     return false;
 }
+
+
+//void multiple(double**A,double *V,int dim_x,int dim_y);
+//double max(double *V,int dim);
+//void div_matrix(double *V,int dim,double m);
+
+//int main(){
+//    FILE *file = fopen("dengjin.txt","r");
+//    int dim_x,dim_y;
+//    double **A,*V;
+//    double miu0 = 0,miu1 = 10;/*just make sure to enter the loop*/
+//    fscanf(file,"%d %d",&dim_x,&dim_y);
+
+///*load in data*/
+//    A = (double **)malloc(sizeof(double *)*dim_x);
+//    V = (double *)malloc(sizeof(double)*dim_y);
+//    for(int i=0;i<dim_x;i++)
+//        A[i] = (double *)malloc(sizeof(double)*dim_y);
+
+//    for(int i=0;i<dim_x;i++)
+//        for(int j=0;j<dim_y;j++)
+//            fscanf(file,"%lf",&A[i][j]);
+
+//    for(int i=0;i<dim_y;i++)
+//        V[i] = 1;/*initialing a vector with any value*/
+
+//    while(fabs(miu1-miu0) >= 1E-8){
+//        multiple(A,V,dim_x,dim_y);
+//        miu0 = miu1;
+//        miu1 = max(V,dim_y);
+//        div_matrix(V,dim_y,miu1);
+//        for(int i=0;i<dim_y;i++)
+//            printf("%10.8lf ",V[i]);
+//        puts("");
+//    }
+//    printf("Eigenvalue: %10.8lf/n", miu1);
+//    //delocating
+
+//}
+
+//void multiple(Matrix A, double *V, int dim_x, int dim_y){
+//    double *tmp = (double *)malloc(sizeof(double)*dim_y);
+//    for(int i=0;i<dim_y;i++)
+//        tmp[i] = 0;
+
+//    for(int i=0;i<dim_x;i++)
+//        for(int j=0;j<dim_y;j++)
+//            tmp[i] += A[i][j]*V[j];
+
+//    for(int i=0;i<dim_y;i++)
+//        V[i] = tmp[i];
+//    free(tmp);
+//}
+
+//double max(double *V,int dim){
+//    double tmp = V[0];
+//    for(int i=1;i<dim;i++)
+//            if(fabs(V[i]) > fabs(tmp))
+//                tmp = V[i];
+//    return tmp;
+//}
+
+//void div_matrix(double *V,int dim,double m){
+//    for(int i=0;i<dim;i++)
+//        V[i] /= m;
+//}

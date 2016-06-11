@@ -11,8 +11,7 @@ InputFrame::InputFrame(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->historyText->setEnabled(false);
-    Highlighter *highlighter = new Highlighter(ui->inputLine->document());
-
+    highlighter = new Highlighter(ui->inputLine->document());
 }
 
 InputFrame::~InputFrame()
@@ -28,7 +27,6 @@ void InputFrame::on_calcButton_clicked()
 }
 
 
-
 void InputFrame::on_importButton_clicked()
 {
     emit signal_import_matrix();
@@ -42,4 +40,9 @@ void InputFrame::on_exportButton_clicked()
 void InputFrame::on_quitButton_clicked()
 {
     emit signal_close();
+}
+
+void InputFrame::slot_setError(int position, int offset)
+{
+    highlighter->setError(position, offset);
 }

@@ -149,29 +149,30 @@ void MatrixTableWidget::on_matrixTable_cellClicked(int row, int column)
         return;
     }
     Matrix mat = matrices[name];
-    emit matrix_changed(mat);
+    emit matrix_changed(mat, name);
 }
 
 
 void MatrixTableWidget::slot_calculate(QString expression)
 {
-
     char *exp = new char[expression.size() + 1];
     strcpy(exp, expression.toStdString().data());
     qDebug() << exp;
     Calculator calc(matrices);
-    if(calc.isValid(exp))
+
+    int position, offset;
+    Matrix res = calc.calculate(exp);
+    if(calc.isValid(exp, &position, &offset))
     {
-        Matrix res = calc.calculate(exp);
-        if(res.isEmpty())
-        {
-            qDebug() << "未定义矩阵";
-            emit info_updated("未定义矩阵");
-            return;
-        }
-        else
-            emit output_updated(res);
+        emit output_updated(res); //send to displayWidget
     }
+    else
+    {
+        qDebug() << position << offset;
+        emit signal_setError(position, offset);
+    }
+
+    delete []exp;
 }
 
 void MatrixTableWidget::on_matrixTable_cellDoubleClicked(int row, int column)

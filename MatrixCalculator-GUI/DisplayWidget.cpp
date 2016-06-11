@@ -17,12 +17,13 @@ DisplayWidget::~DisplayWidget()
     delete ui;
 }
 
-void DisplayWidget::slot_display_matrix(Matrix mat)
+void DisplayWidget::slot_display_matrix(Matrix mat, QString name)
 {
     int row = mat.row;
     int column = mat.column;
     ui->rowLine->setText(QString::number(row));
     ui->columnLine->setText(QString::number(column));
+    ui->matrixNameLine->setText(name);
     ui->displayTable->clear();
     ui->displayTable->setRowCount(row);
     ui->displayTable->setColumnCount(column);
@@ -139,4 +140,9 @@ void DisplayWidget::on_applyButton_clicked() //slot_change_matrix
             mat[r][c] = ui->outputTable->item(r, c)->text().toDouble();
 
     emit apply_matrix(name, mat, name, "自定义矩阵");
+}
+
+void DisplayWidget::on_precisionBox_valueChanged(int arg1)
+{
+
 }

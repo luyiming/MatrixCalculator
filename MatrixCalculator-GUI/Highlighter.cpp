@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QStack>
 
+
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
@@ -43,6 +44,18 @@ void Highlighter::highlightBlock(const QString &text)
     errorFormat.setForeground(Qt::white);
     format.setForeground(Qt::black);
 
+    foreach(const HighlightingRule &rule, highlightingRules)
+    {
+        QRegExp expression(rule.pattern);
+        int index = expression.indexIn(text);
+        while(index >= 0)
+        {
+            int length = expression.matchedLength();
+            setFormat(index, length, rule.format);
+            index = expression.indexIn(text, index + length);
+        }
+    }
+
     QStack<int> st1, st2;
     for(int i = 0; i < text.size(); ++i)
     {
@@ -65,20 +78,30 @@ void Highlighter::highlightBlock(const QString &text)
     while(!st2.isEmpty())
         setFormat(st2.pop(), 1, errorFormat);
 
-
-    foreach(const HighlightingRule &rule, highlightingRules)
+    if(showError)
     {
-        QRegExp expression(rule.pattern);
-        int index = expression.indexIn(text);
-        while(index >= 0)
-        {
-            int length = expression.matchedLength();
-            setFormat(index, length, rule.format);
-            index = expression.indexIn(text, index + length);
-        }
+        setFormat(this->position, this->offset, errorFormat);
+        showError = false;
     }
-qDebug() << 123;
+
+    qDebug() << 123;
     setCurrentBlockState(0);
+}
+
+void Highlighter::setError(int position, int offset)
+{
+    this->showError = true;
+    this->position = position;
+    this->offset = offset;
+    this->rehighlight();
+}
+
+void Highlighter::resetError()
+{
+    this->showError = false;
+    this->position = 0;
+    this->offset = 0;
+    this->rehighlight();
 }
 
 

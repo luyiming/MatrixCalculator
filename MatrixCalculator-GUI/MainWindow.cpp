@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(inputFrame, &InputFrame::signal_export_matrix, matrixTableWidget, &MatrixTableWidget::slot_export_matrix);
     connect(inputFrame, &InputFrame::signal_import_matrix, matrixTableWidget, &MatrixTableWidget::slot_import_matrix);
     connect(inputFrame, &InputFrame::signal_close, this, &MainWindow::close);
-
+    connect(matrixTableWidget, &MatrixTableWidget::signal_setError, inputFrame, &InputFrame::slot_setError);
 
     mainSplitter = new QSplitter(Qt::Horizontal, this);
     rightSplitter = new QSplitter(Qt::Vertical, this);

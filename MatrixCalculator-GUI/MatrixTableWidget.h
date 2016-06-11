@@ -39,9 +39,10 @@ public slots:
     void slot_import_matrix();
 
 signals:
-    void matrix_changed(Matrix mat);
+    void matrix_changed(Matrix mat, QString name);
     void output_updated(Matrix mat);
     void info_updated(QString info);
+    void signal_setError(int position, int offset); //send to inputFrame
 
 private:
     Ui::MatrixTableWidget *ui;

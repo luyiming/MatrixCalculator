@@ -17,7 +17,7 @@ public:
     ~DisplayWidget();
 
 public slots:
-    void slot_display_matrix(Matrix mat);
+    void slot_display_matrix(Matrix mat, QString name);
     void slot_display_output(Matrix mat);
 
 private slots:
@@ -28,6 +28,8 @@ private slots:
     void on_inverseButton_clicked();
 
     void on_applyButton_clicked();
+
+    void on_precisionBox_valueChanged(int arg1);
 
 signals:
     void apply_matrix(QString prevName, Matrix mat, QString name, QString info);
