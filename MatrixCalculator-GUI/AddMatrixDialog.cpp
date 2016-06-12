@@ -39,10 +39,6 @@ void AddMatrixDialog::on_rowLine_textChanged(const QString &arg1)
         {
             ui->matrixTable_0->setRowCount(row);
         }
-        case 3 :
-        {
-            ui->matrixTable_3->setRowCount(row);
-        }
     }
 }
 
@@ -56,10 +52,6 @@ void AddMatrixDialog::on_columnLine_textChanged(const QString &arg1)
         case 0 :
         {
             ui->matrixTable_0->setColumnCount(column);
-        }
-        case 3 :
-        {
-            ui->matrixTable_3->setColumnCount(column);
         }
     }
 }
@@ -195,7 +187,7 @@ void AddMatrixDialog::on_addButton_clicked()
 
 void AddMatrixDialog::on_matrixList_currentRowChanged(int currentRow)
 {
-    if(currentRow == 1 || currentRow == 2)
+    if(currentRow == 1 || currentRow == 2 || currentRow == 3)
     {
         ui->rowLine->setEnabled(false);
         ui->columnLine->setEnabled(false);
@@ -293,8 +285,10 @@ void AddMatrixDialog::on_angleLine_textEdited(const QString &arg1)
         ui->matrixTable_3->setItem(1, 0, new QTableWidgetItem(c));
         ui->matrixTable_3->setItem(1, 1, new QTableWidgetItem(a));
     }
-    else if(ui->matrixOrder_3->currentText() == "3")
+    else if(ui->matrixOrder_3->currentText() == "3" || ui->matrixOrder_3->currentText() == "4")
     {
+        if(ui->matrixOrder_3->currentText() == "4")
+            ui->matrixTable_3->setItem(3, 3, new QTableWidgetItem(QString("1")));
         if(ui->rotationBox->currentText() == "x")
         {
             ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(QString("1")));
@@ -342,8 +336,10 @@ void AddMatrixDialog::on_radianLine_textEdited(const QString &arg1)
         ui->matrixTable_3->setItem(1, 0, new QTableWidgetItem(c));
         ui->matrixTable_3->setItem(1, 1, new QTableWidgetItem(a));
     }
-    else if(ui->matrixOrder_3->currentText() == "3")
+    else if(ui->matrixOrder_3->currentText() == "3" || ui->matrixOrder_3->currentText() == "4")
     {
+        if(ui->matrixOrder_3->currentText() == "4")
+            ui->matrixTable_3->setItem(3, 3, new QTableWidgetItem(QString("1")));
         if(ui->rotationBox->currentText() == "x")
         {
             ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(QString("1")));
@@ -390,8 +386,10 @@ void AddMatrixDialog::on_rotationBox_currentIndexChanged(const QString &arg1)
         ui->matrixTable_3->setItem(1, 0, new QTableWidgetItem(c));
         ui->matrixTable_3->setItem(1, 1, new QTableWidgetItem(a));
     }
-    else if(ui->matrixOrder_3->currentText() == "3")
+    else if(ui->matrixOrder_3->currentText() == "3" || ui->matrixOrder_3->currentText() == "4")
     {
+        if(ui->matrixOrder_3->currentText() == "4")
+            ui->matrixTable_3->setItem(3, 3, new QTableWidgetItem(QString("1")));
         if(arg1 == "x")
         {
             ui->matrixTable_3->setItem(0, 0, new QTableWidgetItem(QString("1")));

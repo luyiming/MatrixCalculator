@@ -331,67 +331,114 @@ bool isValid2(const Matrix& lhs, const Matrix& rhs, int token)
 }
 
 
-//void multiple(double**A,double *V,int dim_x,int dim_y);
-//double max(double *V,int dim);
-//void div_matrix(double *V,int dim,double m);
 
-//int main(){
-//    FILE *file = fopen("dengjin.txt","r");
-//    int dim_x,dim_y;
-//    double **A,*V;
-//    double miu0 = 0,miu1 = 10;/*just make sure to enter the loop*/
-//    fscanf(file,"%d %d",&dim_x,&dim_y);
 
-///*load in data*/
-//    A = (double **)malloc(sizeof(double *)*dim_x);
-//    V = (double *)malloc(sizeof(double)*dim_y);
-//    for(int i=0;i<dim_x;i++)
-//        A[i] = (double *)malloc(sizeof(double)*dim_y);
+double Matrix::test() {
+    int dim_x = this->row, dim_y = this->column;
+    Matrix A = *this;
+    double *V;
+    double miu0 = 0,miu1 = 10;/*just make sure to enter the loop*/
 
-//    for(int i=0;i<dim_x;i++)
-//        for(int j=0;j<dim_y;j++)
-//            fscanf(file,"%lf",&A[i][j]);
+    V = (double *)malloc(sizeof(double)*dim_y);
 
-//    for(int i=0;i<dim_y;i++)
-//        V[i] = 1;/*initialing a vector with any value*/
+    for(int i=0;i<dim_y;i++)
+        V[i] = 1;/*initialing a vector with any value*/
 
-//    while(fabs(miu1-miu0) >= 1E-8){
-//        multiple(A,V,dim_x,dim_y);
-//        miu0 = miu1;
-//        miu1 = max(V,dim_y);
-//        div_matrix(V,dim_y,miu1);
-//        for(int i=0;i<dim_y;i++)
-//            printf("%10.8lf ",V[i]);
-//        puts("");
-//    }
-//    printf("Eigenvalue: %10.8lf/n", miu1);
-//    //delocating
+    while(fabs(miu1-miu0) >= 1E-8){
+        multiple(A, V,dim_x,dim_y);
+        miu0 = miu1;
+        miu1 = max(V,dim_y);
+        div_matrix(V,dim_y,miu1);
+        for(int i=0;i<dim_y;i++)
+            qDebug() << V[i];
+    }
+   return miu1;
 
-//}
+}
 
-//void multiple(Matrix A, double *V, int dim_x, int dim_y){
-//    double *tmp = (double *)malloc(sizeof(double)*dim_y);
-//    for(int i=0;i<dim_y;i++)
-//        tmp[i] = 0;
+void Matrix::multiple(Matrix A, double *V, int dim_x, int dim_y){
+    double *tmp = (double *)malloc(sizeof(double)*dim_y);
+    for(int i=0;i<dim_y;i++)
+        tmp[i] = 0;
 
-//    for(int i=0;i<dim_x;i++)
-//        for(int j=0;j<dim_y;j++)
-//            tmp[i] += A[i][j]*V[j];
+    for(int i=0;i<dim_x;i++)
+        for(int j=0;j<dim_y;j++)
+            tmp[i] += A[i][j]*V[j];
 
-//    for(int i=0;i<dim_y;i++)
-//        V[i] = tmp[i];
-//    free(tmp);
-//}
+    for(int i=0;i<dim_y;i++)
+        V[i] = tmp[i];
+    free(tmp);
+}
 
-//double max(double *V,int dim){
-//    double tmp = V[0];
-//    for(int i=1;i<dim;i++)
-//            if(fabs(V[i]) > fabs(tmp))
-//                tmp = V[i];
-//    return tmp;
-//}
+double Matrix::max(double *V,int dim){
+    double tmp = V[0];
+    for(int i=1;i<dim;i++)
+            if(fabs(V[i]) > fabs(tmp))
+                tmp = V[i];
+    return tmp;
+}
 
-//void div_matrix(double *V,int dim,double m){
-//    for(int i=0;i<dim;i++)
-//        V[i] /= m;
-//}
+void Matrix::div_matrix(double *V,int dim,double m){
+    for(int i=0;i<dim;i++)
+        V[i] /= m;
+}
+
+
+
+void Matrix::exchang_row(double *a,double *b,int n)
+{
+    int i,t;
+    for(i = 0; i < n; i++)
+    {
+        t = a[i];
+        a[i] = b[i];
+        b[i] = t;
+    }
+}
+void Matrix::mul_row(double *a,double k,int n)
+{
+    int i;
+    for(i = 0; i < n; i++)
+    a[i] *= k;
+}
+void Matrix::add_row(double *a1,double *a2,double k,int n)
+{
+    int i;
+    for(i = 0; i < n; i++)
+    a1[i] += a2[i] * k;
+}
+int Matrix::rank()
+{
+    int m, n, i, t;
+    int ri, ci;  //行标记与列标记
+    int f_z;    //某列是否全为0的标志，为1表示全为0
+    m = this->row;
+    n = this->column;
+    for(ri = ci = 0; ci < n; ci++)
+    {
+        f_z = 1;
+        for(i = ri; i < m; i++)
+        {
+            if((*this)[i][ci] != 0)
+            {
+                if(i != ri)
+                {
+                    qDebug() << "i != ri";
+                }
+                if(f_z)
+                    exchang_row(&((*this)[ri][ci]), &((*this)[i][ci]), n - ci);
+                else
+                {
+                    t = (*this)[i][ci];
+                    mul_row(&((*this)[i][ci]), (*this)[ri][ci], n - ci);
+                    add_row(&((*this)[i][ci]), &((*this)[ri][ci]), -t, n - ci);
+                }
+                f_z = 0;
+            }
+            if(!f_z)
+                ri++;
+        }
+
+    }
+    return ri - 1;
+}

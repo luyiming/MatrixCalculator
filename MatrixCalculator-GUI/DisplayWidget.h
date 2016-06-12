@@ -31,6 +31,10 @@ private slots:
 
     void on_precisionBox_valueChanged(int arg1);
 
+    void on_pushButton_7_clicked();
+
+    void on_rankButton_clicked();
+
 signals:
     void apply_matrix(QString prevName, Matrix mat, QString name, QString info);
 

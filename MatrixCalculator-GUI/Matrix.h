@@ -8,6 +8,9 @@ class Matrix
 {
 private:
     double *mat = NULL;
+    void multiple(Matrix A,double *V,int dim_x,int dim_y);
+    double max(double *V,int dim);
+    void div_matrix(double *V,int dim,double m);
 
 public:
     int row = 0, column = 0;
@@ -32,8 +35,14 @@ public:
     double* operator [] (int index);
     const double* operator [] (int index) const;
     void print();
-
+    double test();
     friend bool isValid2(const Matrix& lhs, const Matrix& rhs, int token);
+
+
+    int rank();
+    void exchang_row(double *a,double *b,int n);
+    void mul_row(double *a,double k,int n);
+    void add_row(double *a1,double *a2,double k,int n);
 };
 
 

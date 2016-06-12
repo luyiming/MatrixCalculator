@@ -187,7 +187,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_9">
+        <widget class="QPushButton" name="rankButton">
          <property name="text">
           <string>求秩</string>
          </property>

@@ -464,7 +464,9 @@ bool Calculator::isValid(const char* exp, int *position, int *offset)
         else if(token == Num)
             value_stack.push(Num);
         else if(token == '(')
+        {
             symbol_stack.push('(');
+        }
         else if(token == ')')
         {
             bool ok = false;
@@ -477,7 +479,7 @@ bool Calculator::isValid(const char* exp, int *position, int *offset)
                     break;
                 }
                 if(isValid_helper(token, position, offset) == -1)
-                    false;
+                    return false;
             }
             if(!ok)
             {

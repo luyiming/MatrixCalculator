@@ -146,3 +146,59 @@ void DisplayWidget::on_precisionBox_valueChanged(int arg1)
 {
 
 }
+
+void DisplayWidget::on_pushButton_7_clicked()
+{
+    int row = ui->displayTable->rowCount();
+    int column = ui->displayTable->columnCount();
+    if(row == 0 || column == 0)
+        return;
+
+    Matrix mat(row, column);
+    for(int r = 0; r < row; ++r)
+    {
+        for(int c = 0; c < column; ++c)
+        {
+            if(ui->displayTable->item(r, c) == NULL || ui->displayTable->item(r, c)->text().isEmpty())
+            {
+                QMessageBox::warning(this, QString("失败"), QString("矩阵不完整"));
+                return;
+            }
+            mat[r][c] = ui->displayTable->item(r, c)->text().toDouble();
+        }
+    }
+
+    Matrix res(1, 1);
+    res[0][0] = mat.test();
+
+    slot_display_output(res);
+    return;
+}
+
+void DisplayWidget::on_rankButton_clicked()
+{
+    int row = ui->displayTable->rowCount();
+    int column = ui->displayTable->columnCount();
+    if(row == 0 || column == 0)
+        return;
+
+    Matrix mat(row, column);
+    for(int r = 0; r < row; ++r)
+    {
+        for(int c = 0; c < column; ++c)
+        {
+            if(ui->displayTable->item(r, c) == NULL || ui->displayTable->item(r, c)->text().isEmpty())
+            {
+                QMessageBox::warning(this, QString("失败"), QString("矩阵不完整"));
+                return;
+            }
+            mat[r][c] = ui->displayTable->item(r, c)->text().toDouble();
+        }
+    }
+
+    Matrix res(1, 1);
+    res[0][0] = mat.rank();
+
+    slot_display_output(res);
+    return;
+}
